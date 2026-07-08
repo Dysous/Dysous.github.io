@@ -1,0 +1,12 @@
+# Reference material used while building — never publish
+Reference docs for building/
+reference-docs/
+*.zip
+*.zip.part
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.gstack/
