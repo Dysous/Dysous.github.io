@@ -63,7 +63,7 @@
 
       <div class="chronology">
         <article><p class="index-label">03 / EXPERIENCE</p><h3>Infrastructure &amp; Network Cybersecurity Intern</h3><p class="place">Fannie Mae · 2026—present</p><p>Endpoint protection, firewall compliance, enterprise change management, and Python tooling for drift detection and Panorama diagnostics.</p></article>
-        <article><p class="index-label">04 / VISUAL SYSTEM</p><h3>Red-Black Tree Visualizer</h3><p class="place">C++ · SDL · data structures</p><figure class="project-figure"><img src="assets/img/portfolio/red-black-tree.png" alt="Red-Black Tree Visualizer showing black nodes 20, 10, and 25 with red child node 15" width="1280" height="720" loading="lazy"><figcaption>Live visualizer / insertion state</figcaption></figure><p>Animates insertion, deletion, recoloring, and all four rotation cases as the tree rebalances.</p><a class="text-link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Repository ↗</a></article>
+        <article class="tree-project"><p class="index-label">04 / VISUAL SYSTEM</p><h3>Red-Black Tree Visualizer</h3><p class="place">C++ · SDL · data structures</p><div class="tree-demo" aria-label="Animated demonstration of a red-black tree left rotation"><div class="tree-caption"><span id="tree-step">Insert 30</span><button id="tree-replay" type="button">Replay rotation</button></div><div class="tree-stage" id="tree-stage" aria-hidden="true"><span class="tree-edge edge-a"></span><span class="tree-edge edge-b"></span><span class="tree-edge edge-c"></span><span class="tree-node node-10 red">10</span><span class="tree-node node-20 black">20</span><span class="tree-node node-30 red">30</span></div></div><p>Watch insertion trigger recoloring and a left rotation—the same balancing sequence rendered by the SDL application.</p><a class="text-link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Inspect the source ↗</a></article>
         <article><p class="index-label">05 / TEAM DEFENSE</p><h3>CCDC Southwest Regionals</h3><p class="place">Baylor team · 2026</p><p>Qualified for the regional cyber-defense competition: keep a small-business network operating under active attack.</p></article>
       </div>
       <div class="supporting-record">
@@ -81,34 +81,34 @@
       <div class="archive-intro">
         <div class="archive-intro-text">
           <p>Small systems built to learn how software, hardware, and networks behave below the polished surface.</p>
-          <a class="archive-lfm" href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener">Listening at Last.fm / Dysous ↗</a>
+          <p class="archive-note">The same curiosity extends beyond code: records in rotation, books in progress, and the devices taken apart to understand them.</p>
         </div>
-        <div class="vinyl" aria-hidden="true">
-          <div class="vinyl-label">
-            <span class="vinyl-label-text">MEDIA / STACK</span>
-            <span class="vinyl-label-sub">HOME · SYSTEMS</span>
-          </div>
+        <div class="personal-index" aria-label="Personal indexes">
+          <p class="index-label">Off-hours indexes</p>
+          <a href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener"><span>Listening</span><strong>Last.fm / Dysous</strong><em>↗</em></a>
+          <a href="https://www.goodreads.com/user/show/162248230-noah-mathew" target="_blank" rel="noopener"><span>Reading</span><strong>Goodreads / Noah Mathew</strong><em>↗</em></a>
+          <div class="record-mark" aria-hidden="true"><span>PLAY / READ</span></div>
         </div>
       </div>
 
       <div class="system-showcase">
-        <article class="system-feature">
-          <div class="system-feature-copy"><p class="index-label">01 / Personal software</p><h3>Nocturne</h3><p>A private sleep dashboard built to make wearable data legible at a glance: nightly score, readiness, timeline, and sync health in one focused surface.</p><p class="capture-note">Publication-safe capture · synthetic health data</p></div>
-          <figure><img src="assets/img/portfolio/nocturne.png" alt="Nocturne sleep dashboard showing synthetic sleep score, time asleep, readiness, and navigation" width="900" height="900" loading="lazy"><figcaption>Rendered application UI / redacted test dataset</figcaption></figure>
+        <article class="system-feature nocturne-feature">
+          <div class="system-feature-copy"><p class="index-label">01 / Personal software</p><h3>Nocturne</h3><p>A private sleep dashboard designed as a glanceable morning ritual—not a spreadsheet of biometrics.</p><ul class="feature-list"><li>Nightly score and readiness</li><li>Sleep-stage timeline</li><li>Sync state and trend context</li></ul><p class="capture-note">Designed showcase · synthetic health data</p></div>
+          <figure class="nocturne-showcase" aria-label="Nocturne interface shown across overview, timeline, and trend views"><div class="nocturne-screen primary-screen"><img src="assets/img/portfolio/nocturne.png" alt="Nocturne overview showing synthetic sleep score, time asleep, readiness, and navigation" width="900" height="900" loading="lazy"></div><div class="nocturne-screen timeline-screen"><p><span>Night timeline</span><b>12:36 AM—8:00 AM</b></p><div class="sleep-track"><i></i><i></i><i></i><i></i><i></i><i></i></div><small>Deep · Core · REM · Awake</small></div><div class="nocturne-screen trend-screen"><p><span>Seven-night rhythm</span><b>7h 42m avg.</b></p><div class="trend-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>Consistency +18% this week</small></div><figcaption>Overview / timeline / trend system</figcaption></figure>
         </article>
-        <article class="system-feature reverse">
-          <div class="system-feature-copy"><p class="index-label">02 / Home media</p><h3>Media stack</h3><p>A self-hosted request and playback stack maintained as an exercise in service ownership, updates, and practical privacy.</p><p class="capture-note">Signed-out client surface · no library or network details</p></div>
-          <figure><img src="assets/img/portfolio/media-stack.png" alt="Signed-out Seerr client interface with empty email and password fields" width="1440" height="900" loading="lazy"><figcaption>Publication-safe client view</figcaption></figure>
+        <article class="system-feature reverse media-feature">
+          <div class="system-feature-copy"><p class="index-label">02 / Home media</p><h3>Media stack</h3><p>A self-hosted request-to-playback workflow maintained as an exercise in service ownership, careful updates, and practical privacy.</p><p class="capture-note">Capability map · operational details intentionally omitted</p></div>
+          <figure class="media-map"><div class="media-flow" aria-label="Media workflow from discovery to request, library, and playback"><div><span>01</span><b>Discover</b><small>Find something worth watching</small></div><i>→</i><div><span>02</span><b>Request</b><small>One clean intake surface</small></div><i>→</i><div><span>03</span><b>Library</b><small>Automated organization</small></div><i>→</i><div><span>04</span><b>Play</b><small>Available across trusted clients</small></div></div><div class="media-principles"><span>Private by default</span><span>Observable</span><span>Recoverable</span></div><figcaption>Service ownership / capability view</figcaption></figure>
         </article>
-        <article class="system-feature ring-feature">
-          <div class="system-feature-copy"><p class="index-label">03 / Physical study</p><h3>Ring study on the A1 mini</h3><p>An in-process frame from a small fabrication study—iterating shape, fit, and print behavior on a desktop FDM machine.</p><p class="capture-note">Authentic process frame · September 2026</p></div>
-          <figure><img src="assets/img/portfolio/ring-study.png" alt="Bambu Lab A1 mini during a ring-study print, with a dark circular form on the build plate" width="1080" height="1920" loading="lazy"><figcaption>In-process frame / not a finished-product render</figcaption></figure>
+        <article class="system-feature ring-feature" id="ring-study">
+          <div class="system-feature-copy"><p class="index-label">03 / Industrial design study</p><h3>Colmi R02</h3><p>A custom visualization study of the compact smart ring: exterior proportion, inner sensor packaging, and the tension between wearable comfort and dense hardware.</p><p class="capture-note">Custom 3D concept render · not product photography</p></div>
+          <figure><img src="assets/img/portfolio/colmi-r02-render.webp" alt="Custom 3D concept render of a black smart ring beside an exploded view of its sensor assembly" width="1448" height="1086" loading="lazy"><figcaption>Form and sensor-architecture study</figcaption></figure>
         </article>
       </div>
 
       <div class="system-grid">
         <article><p class="index-label">04 / Hardware</p><h3>Consumer devices, custom firmware</h3><p>Bootloader exploits, custom payloads, and replacement firmware on personally owned devices—including a Nintendo Switch, Kindle, and Android hardware—to understand how vendor protections work.</p></article>
-        <article><p class="index-label">05 / Teaching system</p><h3>Mini FTP Server</h3><p>A Bash file-sharing server written as teaching material for a Cyber at Baylor hands-on workshop.</p><a class="text-link" href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">Repository ↗</a><div class="disc-cd" aria-hidden="true"><div class="disc-label"><span>SIDE</span><span>05</span></div></div></article>
+        <article><p class="index-label">05 / Teaching system</p><h3>Mini FTP Server</h3><p>A Bash file-sharing server written as teaching material for a Cyber at Baylor hands-on workshop.</p><a class="text-link" href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">Repository ↗</a></article>
         <article><p class="index-label">06 / Algorithms</p><h3>Interactive simulations</h3><p>Tiger Game applies algorithmic strategy to an asymmetric board game; Falling Balls is a compact physics playground for gravity, collisions, and forces.</p><p class="system-links"><a href="https://github.com/Dysous/NoahNaiveNights" target="_blank" rel="noopener">Tiger Game ↗</a><a href="https://github.com/Dysous/Falling-Balls" target="_blank" rel="noopener">Falling Balls ↗</a></p></article>
       </div>
     </section>
@@ -127,7 +127,6 @@
             <div><dt>Focus</dt><dd>Infrastructure security, offensive security, digital forensics</dd></div>
             <div><dt>Tools</dt><dd>Python, C/C++, Bash, Linux, Wireshark, Burp Suite, Docker</dd></div>
           </dl>
-          <p class="about-reads">Reading log at <a href="https://www.goodreads.com/user/show/162248230-noah-mathew" target="_blank" rel="noopener">Goodreads ↗</a></p>
         </div>
       </div>
     </section>
@@ -146,7 +145,6 @@
   <footer>
     <img src="assets/img/favicon.svg" alt="" width="28" height="28">
     <p>© <span id="year">2026</span> Noah Mathew · noahmathew.com</p>
-    <a class="footer-lfm" href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener" title="Last.fm · Dysous">♩</a>
     <a href="#top">Back to top ↑</a>
   </footer>
 

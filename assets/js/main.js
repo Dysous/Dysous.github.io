@@ -86,11 +86,38 @@
 
   document.getElementById("replay").addEventListener("click", play);
 
+  /* --- red-black tree: insertion resolves into a left rotation ------- */
+
+  var treeStage = document.getElementById("tree-stage");
+  var treeStep = document.getElementById("tree-step");
+  var treeTimer;
+
+  function playTree() {
+    clearTimeout(treeTimer);
+    treeStage.classList.remove("rotated");
+    treeStep.textContent = "Insert 30 · red-red conflict";
+    if (reduce) {
+      treeStage.classList.add("rotated");
+      treeStep.textContent = "Rotate left · root becomes 20";
+      return;
+    }
+    treeTimer = setTimeout(function () {
+      treeStage.classList.add("rotated");
+      treeStep.textContent = "Rotate left · recolor root";
+    }, 850);
+  }
+
+  document.getElementById("tree-replay").addEventListener("click", playTree);
+
   if ("IntersectionObserver" in window && !reduce) {
     new IntersectionObserver(function (entries, obs) {
       if (entries[0].isIntersecting) { play(); obs.disconnect(); }
     }, { threshold: 0.3 }).observe(term);
+    new IntersectionObserver(function (entries, obs) {
+      if (entries[0].isIntersecting) { playTree(); obs.disconnect(); }
+    }, { threshold: 0.45 }).observe(treeStage);
   } else {
     play();
+    playTree();
   }
 })();
