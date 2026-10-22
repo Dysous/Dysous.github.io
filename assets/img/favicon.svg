@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">NM monogram</title>
+  <rect width="64" height="64" rx="8" fill="#20352a"/>
+  <path d="M13 45V18l19 27V18m0 27 19-27v27" fill="none" stroke="#f4f0e8" stroke-width="5" stroke-linejoin="bevel"/>
+</svg>

@@ -1,380 +1,138 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Noah Mathew · Cybersecurity</title>
-  <meta name="description" content="Noah Mathew is a computer science student at Baylor University concentrating in cybersecurity. National Cyber League top-25 finisher, CCDC regional competitor, and Security+ certified." />
-  <meta property="og:title" content="Noah Mathew · Cybersecurity" />
-  <meta property="og:description" content="Cybersecurity student at Baylor. NCL top-25 finisher, CCDC regional competitor, Security+ certified, and interning in infrastructure security. Competitions, projects, and leadership." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🛡️</text></svg>" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Noah Mathew is a Baylor computer science student focused on cybersecurity, infrastructure security, and practical software tools.">
+  <meta name="theme-color" content="#20352a">
+  <title>Noah Mathew · Cybersecurity &amp; Software</title>
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-
-  <!-- ============ NAV ============ -->
-  <header class="nav" id="top">
-    <div class="nav-inner">
-      <a href="#top" class="nav-logo mono">nm<span class="accent">@</span>baylor:~$</a>
-      <nav aria-label="Primary">
-        <ul class="nav-links">
-          <li><a href="#competitions">Competitions</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#leadership">Leadership</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#contact" class="nav-cta">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="masthead" id="top">
+    <a class="mark" href="#top" aria-label="Noah Mathew, home"><img src="assets/img/favicon.svg" alt="" width="34" height="34"><span>Noah Mathew</span></a>
+    <nav aria-label="Primary navigation">
+      <a href="#work">Work</a><a href="#systems">Systems</a><a href="#about">About</a><a href="#contact">Contact</a>
+    </nav>
+    <div class="outbound"><a href="https://github.com/Dysous/" target="_blank" rel="noopener">GitHub ↗</a><a href="https://www.linkedin.com/in/noah-mathew/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
   </header>
 
-  <main>
-
-    <!-- ============ HERO ============ -->
-    <section class="hero">
-      <div class="container">
-        <p class="eyebrow mono">Cybersecurity · Computer Science @ Baylor University · Class of 2027</p>
-        <h1>Noah Mathew</h1>
-        <p class="hero-sub">
-          I'm a computer science student at Baylor concentrating in cybersecurity. I spend my time on
-          security competitions, an infrastructure security internship, and side projects across
-          offensive security, defense, and digital forensics.
-        </p>
-        <div class="hero-chips" role="list">
-          <span class="chip mono" role="listitem">CompTIA Security+</span>
-          <span class="chip mono" role="listitem">President · Cyber at Baylor</span>
-          <span class="chip mono" role="listitem">President · Upsilon Pi Epsilon</span>
-          <span class="chip mono" role="listitem">B.S. Computer Science · 2027</span>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="kicker">Computer science · Cybersecurity · Baylor '27</p>
+        <h1 id="hero-title">Noah<br>Mathew</h1>
+        <p class="dek">I build security tools, compete across offensive and defensive disciplines, and lead technical communities at Baylor University.</p>
+        <div class="hero-links"><a class="action" href="#work">Read selected work ↓</a><a href="mailto:noah_mathew1@baylor.edu">Email</a></div>
+      </div>
+      <figure class="signal" aria-labelledby="signal-caption">
+        <div class="signal-stage" role="img" aria-label="Abstract halftone silhouette of Mount Rainier resolving into terminal data">
+          <div class="mountain" aria-hidden="true"></div>
+          <pre id="signal-data" aria-hidden="true"></pre>
+          <button class="signal-control" type="button" aria-pressed="false">Resolve signal</button>
         </div>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#competitions">See the work</a>
-          <a class="btn btn-ghost" href="https://www.linkedin.com/in/noah-mathew/" target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a class="btn btn-ghost" href="https://github.com/Dysous/" target="_blank" rel="noopener">GitHub ↗</a>
+        <figcaption id="signal-caption"><span>FIG 01</span> Rainier / Washington State / raster study</figcaption>
+      </figure>
+    </section>
+
+    <section class="work" id="work" aria-labelledby="work-title">
+      <header class="section-head"><p>Selected work / 2024—26</p><h2 id="work-title">Tools, systems, and evidence.</h2><span>05 entries</span></header>
+
+      <article class="case-study">
+        <div class="case-copy">
+          <p class="index-label">01 / FEATURED TOOL</p><h3>CTF-Tools</h3>
+          <p class="lead">Targeted wordlists from structured sources, built during an NCL password-cracking round when standard dictionaries were not enough.</p>
+          <p>Python and BeautifulSoup turn Wikipedia tables and Goodreads lists into tailored candidates in seconds. Log-analysis and web-exploitation helpers are next.</p>
+          <a class="text-link" href="https://github.com/Dysous/CTF-Tools" target="_blank" rel="noopener">Inspect the repository ↗</a>
+        </div>
+        <div class="terminal-wrap">
+          <div class="terminal-head"><span>wordlists / bash</span><button id="replay" type="button">Replay</button></div>
+          <pre class="terminal" id="terminal" aria-label="Animated example output from the CTF-Tools wiki scraper"></pre>
+        </div>
+      </article>
+
+      <article class="evidence">
+        <div><p class="index-label">02 / COMPETITION RECORD</p><h3>National Cyber League</h3><p>Spring 2026 individual game · 7,010 competitors · nine skill domains</p><a class="text-link" href="https://cyberskyline.com/report/R79XH9WWFTFU" target="_blank" rel="noopener">Verify scouting report ↗</a></div>
+        <dl class="metrics"><div><dt>National rank</dt><dd>23<sup>rd</sup></dd></div><div><dt>Accuracy</dt><dd>92.0%</dd></div><div><dt>Completion</dt><dd>100%</dd></div></dl>
+        <div class="rank-table" aria-label="Selected NCL category results">
+          <div><span>Enumeration &amp; exploitation</span><b>100%</b><em>9th</em></div><div><span>Scanning &amp; reconnaissance</span><b>100%</b><em>12th</em></div><div><span>Forensics</span><b>100%</b><em>24th</em></div><div><span>Network traffic analysis</span><b>95.7%</b><em>144th</em></div>
+        </div>
+      </article>
+
+      <div class="chronology">
+        <article><p class="index-label">03 / EXPERIENCE</p><h3>Infrastructure &amp; Network Cybersecurity Intern</h3><p class="place">Fannie Mae · 2026—present</p><p>Endpoint protection, firewall compliance, enterprise change management, and Python tooling for drift detection and Panorama diagnostics.</p></article>
+        <article><p class="index-label">04 / VISUAL SYSTEM</p><h3>Red-Black Tree Visualizer</h3><p class="place">C++ · SDL · data structures</p><p>Animates insertion, deletion, recoloring, and all four rotation cases as the tree rebalances.</p><a class="text-link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Repository ↗</a></article>
+        <article><p class="index-label">05 / TEAM DEFENSE</p><h3>CCDC Southwest Regionals</h3><p class="place">Baylor team · 2026</p><p>Qualified for the regional cyber-defense competition: keep a small-business network operating under active attack.</p></article>
+      </div>
+      <div class="supporting-record">
+        <p class="index-label">Supporting record</p>
+        <p><strong>NCL Fall 2024</strong><span>Team captain · Top 50 of 4,500+ teams</span></p>
+        <p><strong>Hivestorm 2024</strong><span>39th of 413 teams · Baylor's top team</span></p>
+      </div>
+    </section>
+
+    <div class="iris" role="presentation" aria-hidden="true"></div>
+
+    <section class="archive" id="systems" aria-labelledby="systems-title">
+      <header class="section-head inverse"><p>Independent systems / selected</p><h2 id="systems-title">The work around the work.</h2><span>Practical experiments</span></header>
+
+      <div class="archive-intro">
+        <div class="archive-intro-text">
+          <p>Small systems built to learn how software, hardware, and networks behave below the polished surface.</p>
+          <a class="archive-lfm" href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener">Listening at Last.fm / Dysous ↗</a>
+        </div>
+        <div class="vinyl" aria-hidden="true">
+          <div class="vinyl-label">
+            <span class="vinyl-label-text">MEDIA / STACK</span>
+            <span class="vinyl-label-sub">HOME · SYSTEMS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="system-grid">
+        <article><p class="index-label">01 / Hardware</p><h3>Consumer devices, custom firmware</h3><p>Bootloader exploits, custom payloads, and replacement firmware on personally owned devices—including a Nintendo Switch, Kindle, and Android hardware—to understand how vendor protections work.</p></article>
+        <article><p class="index-label">02 / Teaching system</p><h3>Mini FTP Server</h3><p>A Bash file-sharing server written as teaching material for a Cyber at Baylor hands-on workshop.</p><a class="text-link" href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">Repository ↗</a><div class="disc-cd" aria-hidden="true"><div class="disc-label"><span>SIDE</span><span>02</span></div></div></article>
+        <article><p class="index-label">03 / Algorithms</p><h3>Interactive simulations</h3><p>Tiger Game applies algorithmic strategy to an asymmetric board game; Falling Balls is a compact physics playground for gravity, collisions, and forces.</p><p class="system-links"><a href="https://github.com/Dysous/NoahNaiveNights" target="_blank" rel="noopener">Tiger Game ↗</a><a href="https://github.com/Dysous/Falling-Balls" target="_blank" rel="noopener">Falling Balls ↗</a></p></article>
+      </div>
+    </section>
+
+    <section class="about" id="about" aria-labelledby="about-title">
+      <header class="section-head"><p>Profile / credentials</p><h2 id="about-title">Security work with a builder's point of view.</h2><span>Waco, Texas</span></header>
+      <div class="about-grid">
+        <p class="lead">Noah is a Baylor computer science student concentrating in cybersecurity, graduating in May 2027.</p>
+        <div>
+          <p>He leads Cyber at Baylor and the university's Upsilon Pi Epsilon chapter, runs hands-on workshops, and holds CompTIA Security+.</p>
+          <dl class="facts">
+            <div><dt>Education</dt><dd>B.S. Computer Science · GPA 3.75 · Dean's List ×4</dd></div>
+            <div><dt>Experience</dt><dd>Fannie Mae · infrastructure and network cybersecurity</dd></div>
+            <div><dt>Leadership</dt><dd>President · Cyber at Baylor and Upsilon Pi Epsilon</dd></div>
+            <div><dt>Training</dt><dd>Paycom secure development workshop · 2024</dd></div>
+            <div><dt>Focus</dt><dd>Infrastructure security, offensive security, digital forensics</dd></div>
+            <div><dt>Tools</dt><dd>Python, C/C++, Bash, Linux, Wireshark, Burp Suite, Docker</dd></div>
+          </dl>
+          <p class="about-reads">Reading log at <a href="https://www.goodreads.com/user/show/162248230-noah-mathew" target="_blank" rel="noopener">Goodreads ↗</a></p>
         </div>
       </div>
     </section>
 
-    <!-- ============ COMPETITIONS ============ -->
-    <section class="section" id="competitions">
-      <div class="container">
-        <p class="section-eyebrow mono"><span class="accent">01</span> / Competitions</p>
-        <h2>Cyber competitions,<br />a few seasons in</h2>
-
-        <!-- NCL Spring 2026 feature -->
-        <div class="card feature-card">
-          <div class="feature-head">
-            <div>
-              <h3>National Cyber League, Spring 2026 Individual Game</h3>
-              <p class="muted">7,010 competitors nationwide · nine skill domains · one weekend</p>
-            </div>
-            <a class="verify mono" href="https://cyberskyline.com/report/R79XH9WWFTFU" target="_blank" rel="noopener" title="Independently verifiable scouting report">verify report ↗</a>
-          </div>
-
-          <div class="stat-row">
-            <div class="stat">
-              <span class="stat-value mono">23<span class="stat-unit">rd</span></span>
-              <span class="stat-label">national rank</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value mono">100<span class="stat-unit">th</span></span>
-              <span class="stat-label">percentile</span>
-            </div>
-            <div class="stat">
-              <span class="stat-value mono">92.0<span class="stat-unit">%</span></span>
-              <span class="stat-label">accuracy <span class="stat-ctx">(avg 62.6%)</span></span>
-            </div>
-            <div class="stat">
-              <span class="stat-value mono">100<span class="stat-unit">%</span></span>
-              <span class="stat-label">completion <span class="stat-ctx">(avg 40.3%)</span></span>
-            </div>
-          </div>
-
-          <div class="chart" id="ncl-chart" aria-label="Accuracy by NCL category">
-            <p class="chart-title mono">accuracy &amp; national rank by category <span class="chart-ctx">(rank of 7,010)</span></p>
-            <!-- bars injected by main.js; full data also in the <noscript> table -->
-            <noscript>
-              <table>
-                <tr><th>Category</th><th>Accuracy</th><th>National rank</th></tr>
-                <tr><td>Enumeration &amp; Exploitation</td><td>100%</td><td>9th</td></tr>
-                <tr><td>Scanning &amp; Reconnaissance</td><td>100%</td><td>12th</td></tr>
-                <tr><td>Forensics</td><td>100%</td><td>24th</td></tr>
-                <tr><td>Password Cracking</td><td>100%</td><td>26th</td></tr>
-                <tr><td>Network Traffic Analysis</td><td>95.7%</td><td>144th</td></tr>
-                <tr><td>Log Analysis</td><td>95.2%</td><td>80th</td></tr>
-                <tr><td>Cryptography</td><td>89.7%</td><td>125th</td></tr>
-                <tr><td>Web App Exploitation</td><td>82.6%</td><td>221st</td></tr>
-                <tr><td>Open Source Intelligence</td><td>82.2%</td><td>130th</td></tr>
-              </table>
-            </noscript>
-          </div>
-        </div>
-
-        <!-- other competitions -->
-        <div class="grid grid-3">
-          <div class="card">
-            <p class="card-tag mono">CCDC · 2026</p>
-            <h3>Southwest Regionals</h3>
-            <p>Qualified for the Southwest Collegiate Cyber Defense Competition regionals with the
-               Baylor team. In CCDC you keep a small business network running while a red team tries
-               to break in, so it's as much sysadmin work as it is security.</p>
-            <a class="card-link mono" href="https://www.instagram.com/p/DWHKknmDXOb/" target="_blank" rel="noopener">announcement ↗</a>
-          </div>
-          <div class="card">
-            <p class="card-tag mono">NCL · Fall 2024</p>
-            <h3>Team Captain, Top 50</h3>
-            <p>Captained Baylor's second team to a Top 50 finish out of 4,500+ teams. Individually I
-               placed 420<sup>th</sup> of 8,487 that season, and 23<sup>rd</sup> of 7,010 by Spring
-               2026.</p>
-          </div>
-          <div class="card">
-            <p class="card-tag mono">Hivestorm · 2024</p>
-            <h3>39<sup>th</sup> of 413 teams</h3>
-            <p>Four-person cyber defense simulation: hardening Windows and Linux systems, vulnerability
-               scanning, and patch management against the clock. We finished as Baylor's top team on
-               our first try.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ PROJECTS ============ -->
-    <section class="section" id="projects">
-      <div class="container">
-        <p class="section-eyebrow mono"><span class="accent">02</span> / Projects</p>
-        <h2>Things I've built</h2>
-
-        <!-- CTF-Tools feature -->
-        <div class="card feature-card project-split">
-          <div class="project-info">
-            <p class="card-tag mono">Python · BeautifulSoup · automation</p>
-            <h3>CTF-Tools</h3>
-            <p>Custom wordlist generators I wrote during a competition when the standard dictionaries
-               weren't cutting it. They scrape structured sources like Wikipedia tables and Goodreads
-               lists and turn them into targeted cracking wordlists in seconds.</p>
-            <p>It started in an NCL password-cracking round. I'm growing it into a broader kit, with
-               log-analysis and web-exploitation helpers next.</p>
-            <a class="card-link mono" href="https://github.com/Dysous/CTF-Tools" target="_blank" rel="noopener">github.com/Dysous/CTF-Tools ↗</a>
-          </div>
-          <div class="terminal" id="ctf-terminal" aria-hidden="true">
-            <div class="terminal-bar"><span></span><span></span><span></span><p class="mono">wordlists · bash</p></div>
-            <pre class="terminal-body mono" id="terminal-body"></pre>
-          </div>
-        </div>
-
-        <!-- RBT feature -->
-        <div class="card feature-card">
-          <p class="card-tag mono">C++ · SDL · data structures</p>
-          <h3>Red-Black Tree Visualizer</h3>
-          <p>A C++/SDL program that animates every insert, delete, and lookup in a red-black tree. It
-             shows the recolorings and all four rotation cases step by step as the tree rebalances,
-             and the layout reflows so nodes don't overlap.</p>
-          <p>Came with a written report and presentation on the balancing rules.</p>
-          <a class="card-link mono" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">github.com/Dysous/DataStructuresFinalProject ↗</a>
-        </div>
-
-        <!-- hardware / RE card -->
-        <div class="card feature-card">
-          <p class="card-tag mono">hardware · reverse engineering · firmware</p>
-          <h3>Consumer devices, custom firmware</h3>
-          <p>Jailbroke a Nintendo Switch, Kindle, and a few Android devices using bootloader exploits,
-             custom payloads, and replacement firmware to get low-level access past the vendor
-             restrictions. All my own hardware, mostly done for fun and to understand how the
-             protections work.</p>
-        </div>
-
-        <!-- more projects row -->
-        <div class="grid grid-3">
-          <div class="card card-compact">
-            <p class="card-tag mono">C++ · SDL · algorithms</p>
-            <h3>Tiger Game</h3>
-            <p>Group project implementing an asymmetric board-game with algorithmic strategy and an SDL front end.</p>
-            <a class="card-link mono" href="https://github.com/Dysous/NoahNaiveNights" target="_blank" rel="noopener">repo ↗</a>
-          </div>
-          <div class="card card-compact">
-            <p class="card-tag mono">C++ · SDL · physics</p>
-            <h3>Falling Balls</h3>
-            <p>A small physics playground with gravity, collisions, and forces on interactive falling objects.</p>
-            <a class="card-link mono" href="https://github.com/Dysous/Falling-Balls" target="_blank" rel="noopener">repo ↗</a>
-          </div>
-          <div class="card card-compact">
-            <p class="card-tag mono">bash · networking · teaching</p>
-            <h3>Mini FTP Server</h3>
-            <p>Bash file-sharing server written as teaching material for a Cyber at Baylor hands-on workshop I ran.</p>
-            <a class="card-link mono" href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">repo ↗</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ LEADERSHIP ============ -->
-    <section class="section" id="leadership">
-      <div class="container">
-        <p class="section-eyebrow mono"><span class="accent">03</span> / Leadership &amp; Experience</p>
-        <h2>Experience and leadership</h2>
-
-        <!-- Fannie Mae internship feature -->
-        <div class="card feature-card">
-          <div class="feature-head">
-            <div class="exp-head">
-              <img class="exp-logo" src="assets/img/fannie-mae.webp" alt="Fannie Mae logo" width="52" height="52" />
-              <div>
-                <h3>Infrastructure &amp; Network Cybersecurity Intern · Fannie Mae</h3>
-                <p class="muted">June 2026 to present · Reston, VA · hybrid</p>
-              </div>
-            </div>
-          </div>
-          <p>I work on the infrastructure security team at Fannie Mae. Day to day that's endpoint
-             protection with CrowdStrike Falcon, firewall compliance audits, and change management
-             through the enterprise CAB process.</p>
-          <p>I wrote a Python script that automates firewall drift detection, and built another Python
-             tool against the Palo Alto Panorama API to speed up diagnostics. I also work across
-             ZScaler access policy and some SOAR automation.</p>
-        </div>
-
-        <div class="grid grid-2">
-          <div class="card">
-            <div class="card-head">
-              <img class="exp-logo" src="assets/img/cyber-baylor.png" alt="Cyber at Baylor logo" width="46" height="46" />
-              <div>
-                <p class="card-tag mono">2026 to present</p>
-                <h3>President · Cyber at Baylor</h3>
-              </div>
-            </div>
-            <p>I run Baylor's cybersecurity club, after a year as Events Chair where we grew active
-               membership about 40% and Instagram about 32%. I plan the semester, line up speakers and
-               sponsors, put together competition teams, and run hands-on workshops.</p>
-            <a class="card-link mono" href="https://www.instagram.com/cyberatbaylor/" target="_blank" rel="noopener">@cyberatbaylor ↗</a>
-          </div>
-          <div class="card">
-            <div class="card-head">
-              <img class="exp-logo" src="assets/img/upe.jpg" alt="Upsilon Pi Epsilon logo" width="46" height="46" />
-              <div>
-                <p class="card-tag mono">2026 to present</p>
-                <h3>President · Upsilon Pi Epsilon</h3>
-              </div>
-            </div>
-            <p>I lead Baylor's chapter of UPE, the international honor society for the computing
-               sciences, handling membership, inductions, and chapter events.</p>
-          </div>
-          <div class="card">
-            <p class="card-tag mono">July 2024</p>
-            <h3>Secure Development Workshop · Paycom</h3>
-            <p>A weeklong program on secure software development: SDLC, hands-on XSS and SQL injection
-               labs, and tools like Acunetix, sqlmap, OWASP ZAP, and Burp Suite.</p>
-          </div>
-          <div class="card">
-            <p class="card-tag mono">ongoing</p>
-            <h3>Workshops &amp; Mentoring</h3>
-            <p>A workshop series I run for club members covering Linux, networking, scripting, and CTF
-               basics, built around live exercises instead of slides.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ SKILLS & CREDENTIALS ============ -->
-    <section class="section" id="skills">
-      <div class="container">
-        <p class="section-eyebrow mono"><span class="accent">04</span> / Skills &amp; Credentials</p>
-        <h2>The toolbox</h2>
-
-        <div class="cred-row">
-          <div class="card cred-card">
-            <img src="assets/img/secplus-white.png" alt="CompTIA Security+ ce certification logo" class="cred-logo" />
-            <div>
-              <h3>CompTIA Security+ <span class="mono muted">ce</span></h3>
-              <p class="muted">Certified August 2024 · security architecture, operations, and risk management</p>
-            </div>
-          </div>
-          <div class="card cred-card">
-            <img src="assets/img/baylor-bu.svg" alt="Baylor University interlocking BU logo" class="cred-logo cred-logo-baylor" />
-            <div>
-              <h3>Baylor University</h3>
-              <p class="muted">B.S. Computer Science, Cybersecurity concentration · GPA 3.75 · Dean's List ×4 · May 2027</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-4 skills-grid">
-          <div>
-            <h4 class="mono">offense</h4>
-            <ul class="skill-list mono">
-              <li>Nmap</li><li>Metasploit</li><li>Burp Suite</li><li>Hashcat</li>
-              <li>John the Ripper</li><li>Hydra</li><li>sqlmap</li><li>OWASP ZAP</li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="mono">defense &amp; forensics</h4>
-            <ul class="skill-list mono">
-              <li>Wireshark</li><li>Volatility</li><li>Ghidra</li><li>Graylog</li>
-              <li>pfSense</li><li>Windows AD</li><li>Binwalk</li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="mono">languages</h4>
-            <ul class="skill-list mono">
-              <li>Python</li><li>C / C++</li><li>Java</li><li>C#</li>
-              <li>Bash</li><li>PowerShell</li><li>x86 ASM</li><li>JavaScript</li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="mono">systems &amp; dev</h4>
-            <ul class="skill-list mono">
-              <li>Kali / Ubuntu</li><li>Windows</li><li>Docker</li><li>Git</li>
-              <li>Spring Boot</li><li>React</li><li>MySQL / MariaDB</li><li>MongoDB</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ CONTACT ============ -->
-    <section class="section section-contact" id="contact">
-      <div class="container">
-        <p class="section-eyebrow mono"><span class="accent">05</span> / Contact</p>
-        <h2>Get in touch</h2>
-        <p class="hero-sub">I'm looking for information security internship and new-grad roles for 2027.
-           Happy to talk through any of the competitions or projects here.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="mailto:noah_mathew1@baylor.edu">noah_mathew1@baylor.edu</a>
-          <a class="btn btn-ghost" href="https://www.linkedin.com/in/noah-mathew/" target="_blank" rel="noopener">LinkedIn ↗</a>
-          <a class="btn btn-ghost" href="https://github.com/Dysous/" target="_blank" rel="noopener">GitHub ↗</a>
-        </div>
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <p class="kicker">Contact / 2027 opportunities</p>
+      <h2 id="contact-title">Start with the work.<br>Then start a conversation.</h2>
+      <div>
+        <a class="action light" href="mailto:noah_mathew1@baylor.edu">noah_mathew1@baylor.edu ↗</a>
+        <a href="https://www.linkedin.com/in/noah-mathew/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/Dysous/" target="_blank" rel="noopener">GitHub</a>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="container footer-inner">
-      <p class="mono muted">© <span id="year">2026</span> Noah Mathew · noahmathew.com</p>
-      <p class="mono muted">
-        <a href="https://www.linkedin.com/in/noah-mathew/" target="_blank" rel="noopener">linkedin</a> ·
-        <a href="https://github.com/Dysous/" target="_blank" rel="noopener">github</a> ·
-        <a href="https://www.instagram.com/cyberatbaylor/" target="_blank" rel="noopener">cyber at baylor</a>
-      </p>
-      <p class="made-with mono">
-        <a href="https://claude.com/claude-code" target="_blank" rel="noopener" aria-label="Built with Claude Code">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#D97757" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
-            <line x1="13.8" y1="12" x2="21" y2="12" />
-            <line x1="13.56" y1="12.9" x2="16.76" y2="14.75" />
-            <line x1="12.9" y1="13.56" x2="16.5" y2="19.79" />
-            <line x1="12" y1="13.8" x2="12" y2="17.5" />
-            <line x1="11.1" y1="13.56" x2="7.5" y2="19.79" />
-            <line x1="10.44" y1="12.9" x2="7.24" y2="14.75" />
-            <line x1="10.2" y1="12" x2="3" y2="12" />
-            <line x1="10.44" y1="11.1" x2="7.24" y2="9.25" />
-            <line x1="11.1" y1="10.44" x2="7.5" y2="4.21" />
-            <line x1="12" y1="10.2" x2="12" y2="6.5" />
-            <line x1="12.9" y1="10.44" x2="16.5" y2="4.21" />
-            <line x1="13.56" y1="11.1" x2="16.76" y2="9.25" />
-          </svg>
-          <span>built with Claude Code</span>
-        </a>
-      </p>
-    </div>
+  <footer>
+    <img src="assets/img/favicon.svg" alt="" width="28" height="28">
+    <p>© <span id="year">2026</span> Noah Mathew · noahmathew.com</p>
+    <a class="footer-lfm" href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener" title="Last.fm · Dysous">♩</a>
+    <a href="#top">Back to top ↑</a>
   </footer>
 
   <script src="assets/js/main.js"></script>
