@@ -68,7 +68,7 @@
     </section>
 
     <section class="work" id="work" aria-labelledby="work-title">
-      <header class="section-head"><p>Projects / 2024—26</p><h2 id="work-title">Built, run, and still running.</h2><span>Six entries</span></header>
+      <header class="section-head"><p>Projects / 2024—26</p><h2 id="work-title">Built, run, and still running.</h2><span>Seven entries</span></header>
 
       <!-- 01 Nocturne + the ring ------------------------------------- -->
       <article class="project" id="nocturne">
@@ -186,27 +186,51 @@
         </div>
       </article>
 
-      <!-- 06 smaller work --------------------------------------------- -->
+      <!-- 06 Fannie Mae ----------------------------------------------- -->
+      <div class="worked" id="fannie">
+        <div class="worked-head">
+          <p class="index-label">06 / Python · written at Fannie Mae</p>
+          <h3>Two tools for the people who run the firewalls</h3>
+          <p class="lead">Both of these started the same way: watching a question that should take one minute take an afternoon, because the answer was spread across every device on the network.</p>
+          <p class="capture-note">Internal tooling — the code and the consoles stay at Fannie Mae, so there is nothing here I can show you</p>
+        </div>
+        <div class="worked-grid">
+          <article>
+            <p class="tool-label">Tool one</p>
+            <h4>Ask every firewall at once</h4>
+            <p>Panorama will happily talk to one firewall at a time. That falls apart when the question is <em>where did this traffic go?</em> and the honest answer is “it could be any of them.”</p>
+            <p>So this drives the Panorama API directly: one query fans out across every firewall in scope, kicks off packet captures where they’re needed, and collects the results in one place. Chasing traffic that never resolved stopped being a device-by-device hunt.</p>
+          </article>
+          <article>
+            <p class="tool-label">Tool two</p>
+            <h4>Quarterly firewall hygiene</h4>
+            <p>Rulesets rot. The same rule gets written twice by two people. A new rule quietly contradicts an old one. A change meant to tighten one path widens another, and nobody notices until someone goes looking.</p>
+            <p>This parses an exported CrowdStrike ruleset and reports what’s actually in it — duplicates, contradictions, and any rule that loosens or restricts access more than it was meant to. It ran as part of the quarterly firewall hygiene review.</p>
+          </article>
+        </div>
+      </div>
+
+      <!-- 07 smaller work --------------------------------------------- -->
       <div class="system-grid" id="smaller">
         <article>
-          <p class="index-label">06 / Self-hosted</p>
+          <p class="index-label">07 / Self-hosted</p>
           <h4>Media stack</h4>
           <p>A request-to-playback pipeline I run at home: intake, automated organisation, and playback across the devices in the house. Mostly an exercise in owning services — upgrades that don’t take the library down, backups I’ve actually restored from.</p>
         </article>
         <article>
-          <p class="index-label">07 / Teaching material</p>
+          <p class="index-label">08 / Teaching material</p>
           <h4>Mini FTP server</h4>
           <p>A file-sharing server in Bash, written to be read aloud. I used it to run a hands-on workshop for Cyber at Baylor.</p>
           <p class="system-links"><a href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">Repository ↗</a></p>
         </article>
         <article>
-          <p class="index-label">08 / Simulations</p>
+          <p class="index-label">09 / Simulations</p>
           <h4>Tiger Game &amp; Falling Balls</h4>
           <p>An asymmetric board game solved with algorithmic strategy, and a small physics playground for gravity, collisions, and forces.</p>
           <p class="system-links"><a href="https://github.com/Dysous/NoahNaiveNights" target="_blank" rel="noopener">Tiger Game ↗</a><a href="https://github.com/Dysous/Falling-Balls" target="_blank" rel="noopener">Falling Balls ↗</a></p>
         </article>
         <article>
-          <p class="index-label">09 / Firmware</p>
+          <p class="index-label">10 / Firmware</p>
           <h4>Hardware I’ve opened</h4>
           <p>Bootloader exploits, custom payloads, and replacement firmware on things I own — a Switch, a Kindle, assorted Android hardware — to find out what the vendor protections were actually doing.</p>
         </article>
@@ -239,12 +263,20 @@
         </div>
       </article>
 
-      <div class="comp-grid">
-        <article>
+      <article class="ccdc" id="ccdc">
+        <figure>
+          <img src="assets/img/portfolio/ccdc-team.webp" alt="The eight-person Baylor CCDC team standing together in a classroom, in front of a projected service-status board showing every monitored service green" width="933" height="704" loading="lazy">
+          <figcaption>The team, and the board behind us — every service still answering. Photo from <a href="https://www.instagram.com/cyberatbaylor/p/DU1vn_xjgQZ/" target="_blank" rel="noopener">Cyber at Baylor ↗</a></figcaption>
+        </figure>
+        <div class="ccdc-copy">
           <p class="index-label">CCDC Southwest · 2026</p>
-          <h4>Regional qualifier</h4>
-          <p>Eight hours keeping a small-business network alive while a red team takes it apart, with business injects landing the whole time. Qualified with the Baylor team.</p>
-        </article>
+          <h3>Regional qualifier</h3>
+          <p>Eight hours keeping a small-business network alive while a red team takes it apart, with business injects landing the whole time. You do not get points for clever. You get points for the service being up when the scoring engine checks, and for still having an answer when someone asks what happened.</p>
+          <p>We qualified. The eight of us in that room are the reason.</p>
+        </div>
+      </article>
+
+      <div class="comp-grid two">
         <article>
           <p class="index-label">NCL Fall 2024</p>
           <h4>Team captain</h4>
