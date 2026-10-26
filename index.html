@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Noah Mathew is a Baylor computer science student focused on cybersecurity, infrastructure security, and practical software tools.">
+  <meta name="description" content="Noah Mathew’s project portfolio — a sleep tracker for a cheap smart ring, a Rust DNS resolver that watches its own traffic, a red-black tree visualizer, a CTF platform, and competition work.">
   <meta name="theme-color" content="#20352a">
-  <title>Noah Mathew · Cybersecurity &amp; Software</title>
+  <title>Noah Mathew · Projects</title>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/css/style.css">
+  <!-- RPO{the_oasis_is_in_the_console} -->
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="masthead" id="top">
     <a class="mark" href="#top" aria-label="Noah Mathew, home"><img src="assets/img/favicon.svg" alt="" width="34" height="34"><span>Noah Mathew</span></a>
     <nav aria-label="Primary navigation">
-      <a href="#work">Work</a><a href="#systems">Systems</a><a href="#about">About</a><a href="#contact">Contact</a>
+      <a href="#work">Projects</a><a href="#competition">Competition</a><a href="#listening-room">Listening room</a><a href="#contact">Contact</a>
     </nav>
     <div class="outbound"><a href="https://github.com/Dysous/" target="_blank" rel="noopener">GitHub ↗</a><a href="https://www.linkedin.com/in/noah-mathew/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
   </header>
@@ -22,118 +23,244 @@
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="kicker">Computer science · Cybersecurity · Baylor '27</p>
-        <h1 id="hero-title">Noah<br>Mathew</h1>
-        <p class="dek">I build security tools, compete across offensive and defensive disciplines, and lead technical communities at Baylor University.</p>
-        <div class="hero-links"><a class="action" href="#work">Read selected work ↓</a><a href="mailto:noah_mathew1@baylor.edu">Email</a></div>
+        <p class="kicker">Project portfolio · Waco, Texas</p>
+        <h1 id="hero-title">Things I’ve<br>made &amp; broken.</h1>
+        <p class="dek">A sleep tracker for a ring that ships a bad app. A DNS resolver that watches its own traffic. A tree that rebalances itself on screen. Mostly things I built because I wanted to see what was happening underneath.</p>
+        <div class="hero-links"><a class="action" href="#work">Start with the projects ↓</a><a href="mailto:noah_mathew1@baylor.edu">Email</a></div>
       </div>
-      <figure class="signal" aria-labelledby="signal-caption">
-        <div class="signal-stage" role="img" aria-label="Abstract halftone silhouette of Mount Rainier resolving into terminal data">
-          <div class="mountain" aria-hidden="true"></div>
-          <pre id="signal-data" aria-hidden="true"></pre>
-          <button class="signal-control" type="button" aria-pressed="false">Resolve signal</button>
+
+      <div class="listening-scene" id="listening-room">
+        <div class="scene-frame">
+         <div class="scene-row">
+          <div class="shelf" aria-labelledby="shelf-label">
+            <p class="shelf-title" id="shelf-label">The shelf</p>
+            <div class="spines">
+              <a class="spine s1" href="https://www.goodreads.com/user/show/162248230-noah-mathew" target="_blank" rel="noopener"><span>Currently reading</span></a>
+              <span class="spine s2" aria-hidden="true"></span>
+              <span class="spine s3" aria-hidden="true"></span>
+              <a class="spine s4" href="https://www.goodreads.com/user/show/162248230-noah-mathew" target="_blank" rel="noopener"><span>Goodreads ↗</span></a>
+              <span class="spine s5" aria-hidden="true"></span>
+              <span class="spine s6" aria-hidden="true"></span>
+            </div>
+            <div class="shelf-board" aria-hidden="true"></div>
+          </div>
+
+          <div class="deck">
+            <div class="platter" id="platter">
+              <div class="record" id="record">
+                <span class="record-label" id="record-label">SIDE A</span>
+              </div>
+            </div>
+            <div class="tonearm" aria-hidden="true"><i></i></div>
+          </div>
+         </div>
+
+         <div class="deck-controls">
+           <button id="soundtrack" type="button" aria-pressed="false">
+             <span class="play-icon" aria-hidden="true">▶</span>
+             <span class="sound-label">Play the soundtrack</span>
+           </button>
+           <a class="scrobble" href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener">What I actually listen to ↗</a>
+         </div>
+         <p class="deck-note">Ambient loop generated in the browser. It keeps playing while you scroll.</p>
         </div>
-        <figcaption id="signal-caption"><span>FIG 01</span> Rainier / Washington State / raster study</figcaption>
-      </figure>
+      </div>
     </section>
 
     <section class="work" id="work" aria-labelledby="work-title">
-      <header class="section-head"><p>Selected work / 2024—26</p><h2 id="work-title">Tools, systems, and evidence.</h2><span>05 entries</span></header>
+      <header class="section-head"><p>Projects / 2024—26</p><h2 id="work-title">Built, run, and still running.</h2><span>Six entries</span></header>
 
-      <article class="case-study">
-        <div class="case-copy">
-          <p class="index-label">01 / FEATURED TOOL</p><h3>CTF-Tools</h3>
-          <p class="lead">Targeted wordlists from structured sources, built during an NCL password-cracking round when standard dictionaries were not enough.</p>
-          <p>Python and BeautifulSoup turn Wikipedia tables and Goodreads lists into tailored candidates in seconds. Log-analysis and web-exploitation helpers are next.</p>
-          <a class="text-link" href="https://github.com/Dysous/CTF-Tools" target="_blank" rel="noopener">Inspect the repository ↗</a>
+      <!-- 01 Nocturne + the ring ------------------------------------- -->
+      <article class="project" id="nocturne">
+        <div class="project-copy">
+          <p class="index-label">01 / Software &amp; hardware</p>
+          <h3>Nocturne</h3>
+          <p class="lead">The Colmi R02 is a twenty-dollar smart ring that ships with an app I didn’t want to run. Nocturne is what I use instead.</p>
+          <p>It reads the ring over Bluetooth, keeps every sample in a local SQLite file that never leaves the machine, and renders the parts I actually check in the morning: a sleep score I can interrogate, the night broken into stages, resting heart rate, and seven-day trends.</p>
+          <p class="capture-note">Screens captured from the running app on its own demo data</p>
         </div>
-        <div class="terminal-wrap">
-          <div class="terminal-head"><span>wordlists / bash</span><button id="replay" type="button">Replay</button></div>
-          <pre class="terminal" id="terminal" aria-label="Animated example output from the CTF-Tools wiki scraper"></pre>
-        </div>
-      </article>
 
-      <article class="evidence">
-        <div><p class="index-label">02 / COMPETITION RECORD</p><h3>National Cyber League</h3><p>Spring 2026 individual game · 7,010 competitors · nine skill domains</p><a class="text-link" href="https://cyberskyline.com/report/R79XH9WWFTFU" target="_blank" rel="noopener">Verify scouting report ↗</a></div>
-        <dl class="metrics"><div><dt>National rank</dt><dd>23<sup>rd</sup></dd></div><div><dt>Accuracy</dt><dd>92.0%</dd></div><div><dt>Completion</dt><dd>100%</dd></div></dl>
-        <div class="rank-table" aria-label="Selected NCL category results">
-          <div><span>Enumeration &amp; exploitation</span><b>100%</b><em>9th</em></div><div><span>Scanning &amp; reconnaissance</span><b>100%</b><em>12th</em></div><div><span>Forensics</span><b>100%</b><em>24th</em></div><div><span>Network traffic analysis</span><b>95.7%</b><em>144th</em></div>
+        <div class="project-visual nocturne-visual">
+          <div class="phone-row">
+            <figure class="phone"><img src="assets/img/portfolio/nocturne-sleep.webp" alt="Nocturne sleep screen: a score of 96, time asleep, readiness, and the start of the night timeline" width="560" height="1200" loading="lazy"><figcaption>Morning</figcaption></figure>
+            <figure class="phone"><img src="assets/img/portfolio/nocturne-trends.webp" alt="Nocturne trends screen: sleep score over seven days, sleep duration by stage, and bed-to-wake schedule" width="560" height="1200" loading="lazy"><figcaption>Trends</figcaption></figure>
+            <figure class="phone"><img src="assets/img/portfolio/nocturne-body.webp" alt="Nocturne body screen: resting heart rate, sleeping and daytime ranges, and a 24-hour heart rate plot" width="560" height="1200" loading="lazy"><figcaption>Body</figcaption></figure>
+          </div>
         </div>
       </article>
 
-      <div class="chronology">
-        <article><p class="index-label">03 / EXPERIENCE</p><h3>Infrastructure &amp; Network Cybersecurity Intern</h3><p class="place">Fannie Mae · 2026—present</p><p>Endpoint protection, firewall compliance, enterprise change management, and Python tooling for drift detection and Panorama diagnostics.</p></article>
-        <article class="tree-project"><p class="index-label">04 / VISUAL SYSTEM</p><h3>Red-Black Tree Visualizer</h3><p class="place">C++ · SDL · data structures</p><div class="tree-demo" aria-label="Animated demonstration of a red-black tree left rotation"><div class="tree-caption"><span id="tree-step">Insert 30</span><button id="tree-replay" type="button">Replay rotation</button></div><div class="tree-stage" id="tree-stage" aria-hidden="true"><span class="tree-edge edge-a"></span><span class="tree-edge edge-b"></span><span class="tree-edge edge-c"></span><span class="tree-node node-10 red">10</span><span class="tree-node node-20 black">20</span><span class="tree-node node-30 red">30</span></div></div><p>Watch insertion trigger recoloring and a left rotation—the same balancing sequence rendered by the SDL application.</p><a class="text-link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Inspect the source ↗</a></article>
-        <article><p class="index-label">05 / TEAM DEFENSE</p><h3>CCDC Southwest Regionals</h3><p class="place">Baylor team · 2026</p><p>Qualified for the regional cyber-defense competition: keep a small-business network operating under active attack.</p></article>
+      <div class="ring-block">
+        <div class="ring-copy">
+          <p class="index-label">01b / The ring itself</p>
+          <h4>Colmi R02, taken apart</h4>
+          <p>Everything Nocturne reads comes out of this: a shell, a curved battery, a flex board with a PPG sensor pressed against the inside of your finger. There is not much room in a size-10 ring.</p>
+          <ul class="ring-legend" aria-hidden="true">
+            <li><i class="sw sw-shell"></i>Outer shell</li>
+            <li><i class="sw sw-batt"></i>Curved battery</li>
+            <li><i class="sw sw-pcb"></i>Flex PCB + PPG sensor</li>
+            <li><i class="sw sw-liner"></i>Inner resin liner</li>
+          </ul>
+          <p class="capture-note">Model of the part layout, not a scan of the hardware</p>
+        </div>
+        <figure class="ring-stage" id="ring-stage">
+          <canvas width="760" height="620" aria-label="Interactive three-dimensional view of the Colmi R02 ring. Drag to rotate it; use the separation slider to pull its parts apart."></canvas>
+          <img class="ring-fallback" src="assets/img/portfolio/colmi-r02-render.webp" alt="Render of the Colmi R02 ring beside an exploded view of its internal parts" width="1448" height="1086" loading="lazy">
+          <div class="ring-controls">
+            <label for="ring-explode">Separate</label>
+            <input type="range" id="ring-explode" min="0" max="100" value="0" step="1" aria-describedby="ring-hint">
+            <button id="ring-spin" type="button" aria-pressed="true">Pause rotation</button>
+          </div>
+          <figcaption id="ring-hint">Drag to turn it · scroll over it or use the slider to pull it apart</figcaption>
+        </figure>
       </div>
-      <div class="supporting-record">
-        <p class="index-label">Supporting record</p>
-        <p><strong>NCL Fall 2024</strong><span>Team captain · Top 50 of 4,500+ teams</span></p>
-        <p><strong>Hivestorm 2024</strong><span>39th of 413 teams · Baylor's top team</span></p>
+
+      <!-- 02 DNS resolver -------------------------------------------- -->
+      <article class="project reverse" id="resolver">
+        <div class="project-copy">
+          <p class="index-label">02 / Rust · networking</p>
+          <h3>DNS resolver &amp; security monitor</h3>
+          <p class="lead">A resolver that answers the question and then watches itself being asked.</p>
+          <p>It parses DNS off the wire rather than leaning on a library, caches by TTL, signs every answer with an ECDSA key over <code>RRSIG</code>/<code>DNSKEY</code>, serves DNS-over-HTTPS, and drops ad and tracker domains before they ever leave the network.</p>
+          <p>The part I cared about is the threat engine. Every query gets scored on the Shannon entropy of its subdomain labels, label length, per-IP rate, and how many unique subdomains one parent domain is suddenly growing — the signature of DNS tunneling. Anything over the line lands on a watchlist with the evidence attached.</p>
+          <p class="capture-note">Captured from the resolver running locally — real traffic, real numbers</p>
+          <a class="text-link" href="https://github.com/Dysous/Rust-DNS-Resolver" target="_blank" rel="noopener">Read the source ↗</a>
+        </div>
+
+        <div class="project-visual dns-visual">
+          <figure class="shot wide"><img src="assets/img/portfolio/dns-dashboard.webp" alt="DNS monitor dashboard: 346 total queries, 22 cache hits, 60 ms average latency, 40 blocked queries, 304 DNSSEC validations, and lists of top queried and top blocked domains" width="1280" height="1484" loading="lazy"><figcaption>Ordinary traffic</figcaption></figure>
+          <figure class="shot"><img src="assets/img/portfolio/dns-threats.webp" alt="Threat page: average threat score 98.4, a tunneling watchlist entry for evil.test with 432 unique subdomains and 4.85 average entropy, plus flagged queries scoring 160" width="1280" height="1120" loading="lazy"><figcaption>Under a simulated tunneling run</figcaption></figure>
+          <figure class="shot"><img src="assets/img/portfolio/dns-logs.webp" alt="Live DNS request stream showing timestamps, source IPs, domains, protocol, latency, and status" width="1280" height="590" loading="lazy"><figcaption>Query stream</figcaption></figure>
+        </div>
+      </article>
+
+      <!-- 03 Red-black tree ------------------------------------------ -->
+      <article class="project" id="tree">
+        <div class="project-copy">
+          <p class="index-label">03 / C++ · SDL</p>
+          <h3>Red-black tree visualizer</h3>
+          <p class="lead">Type a number, press insert, and watch the tree go find the slot it belongs in.</p>
+          <p>Then watch it recolor and rotate to stay balanced. Delete runs the same machinery backwards. The tree itself was the easy half — the work went into the layout reflow, so a growing tree spreads out instead of piling nodes on top of each other mid-rotation.</p>
+          <p class="capture-note">Recorded from the compiled project: eight inserts, recolorings, rotations, then a delete fix-up</p>
+          <a class="text-link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Read the source ↗</a>
+        </div>
+        <div class="project-visual tree-visual">
+          <figure class="screen-capture">
+            <video id="tree-video" width="1280" height="720" poster="assets/img/portfolio/redblack-tree-poster.webp" muted loop playsinline preload="none" aria-label="Screen recording of the red-black tree visualizer inserting nodes, recoloring, rotating, and deleting a node"></video>
+            <div class="capture-bar">
+              <button id="tree-play" type="button" aria-pressed="false">Play recording</button>
+              <span>Jingle_Ballers · SDL build</span>
+            </div>
+          </figure>
+        </div>
+      </article>
+
+      <!-- 04 Ready Player Zero --------------------------------------- -->
+      <article class="project reverse" id="rpz">
+        <div class="project-copy">
+          <p class="index-label">04 / Platform · ran it live</p>
+          <h3>Ready Player Zero</h3>
+          <p class="lead">A capture-the-flag event I built the platform for, then ran: three keys, three gates, one champion.</p>
+          <p>Node and SQLite behind nginx, with team registration, flag validation, a live scoreboard, and an admin panel for moving the gates mid-event. The hands-on challenges lived in a separate Ubuntu container reachable only over SSH — no internet, one CPU, half a gig of RAM, so a competitor who broke out of a challenge broke out into nothing.</p>
+          <p class="capture-note">Project’s own UI preview · private repository</p>
+        </div>
+        <div class="project-visual rpz-visual">
+          <figure class="shot"><img src="assets/img/portfolio/rpz-gates.webp" alt="Ready Player Zero gate view: the Copper Key cleared, the Jade Key active with a hint and a flag input, the Crystal Key locked" width="1100" height="790" loading="lazy"><figcaption>Gates</figcaption></figure>
+          <figure class="shot"><img src="assets/img/portfolio/rpz-scoreboard.webp" alt="Ready Player Zero scoreboard listing four teams with gate progress" width="1100" height="320" loading="lazy"><figcaption>Scoreboard</figcaption></figure>
+        </div>
+      </article>
+
+      <!-- 05 CTF-Tools ------------------------------------------------ -->
+      <article class="project" id="ctf-tools">
+        <div class="project-copy">
+          <p class="index-label">05 / Python</p>
+          <h3>CTF-Tools</h3>
+          <p class="lead">Written in the middle of an NCL password-cracking round, when the standard wordlists plainly were not going to get there.</p>
+          <p>The hashes were themed. The dictionary wasn’t. So this scrapes structured sources — Wikipedia tables, Goodreads lists — into a candidate list shaped like the thing I’m actually attacking, with case and leetspeak variants layered on.</p>
+          <a class="text-link" href="https://github.com/Dysous/CTF-Tools" target="_blank" rel="noopener">Repository ↗</a>
+        </div>
+        <div class="project-visual">
+          <div class="terminal-wrap">
+            <div class="terminal-head"><span>wordlists / bash</span><button id="replay" type="button">Replay</button></div>
+            <pre class="terminal" id="terminal" aria-label="Example output from the CTF-Tools wordlist scraper"></pre>
+          </div>
+        </div>
+      </article>
+
+      <!-- 06 smaller work --------------------------------------------- -->
+      <div class="system-grid" id="smaller">
+        <article>
+          <p class="index-label">06 / Self-hosted</p>
+          <h4>Media stack</h4>
+          <p>A request-to-playback pipeline I run at home: intake, automated organisation, and playback across the devices in the house. Mostly an exercise in owning services — upgrades that don’t take the library down, backups I’ve actually restored from.</p>
+        </article>
+        <article>
+          <p class="index-label">07 / Teaching material</p>
+          <h4>Mini FTP server</h4>
+          <p>A file-sharing server in Bash, written to be read aloud. I used it to run a hands-on workshop for Cyber at Baylor.</p>
+          <p class="system-links"><a href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">Repository ↗</a></p>
+        </article>
+        <article>
+          <p class="index-label">08 / Simulations</p>
+          <h4>Tiger Game &amp; Falling Balls</h4>
+          <p>An asymmetric board game solved with algorithmic strategy, and a small physics playground for gravity, collisions, and forces.</p>
+          <p class="system-links"><a href="https://github.com/Dysous/NoahNaiveNights" target="_blank" rel="noopener">Tiger Game ↗</a><a href="https://github.com/Dysous/Falling-Balls" target="_blank" rel="noopener">Falling Balls ↗</a></p>
+        </article>
+        <article>
+          <p class="index-label">09 / Firmware</p>
+          <h4>Hardware I’ve opened</h4>
+          <p>Bootloader exploits, custom payloads, and replacement firmware on things I own — a Switch, a Kindle, assorted Android hardware — to find out what the vendor protections were actually doing.</p>
+        </article>
       </div>
     </section>
 
     <div class="iris" role="presentation" aria-hidden="true"></div>
 
-    <section class="archive" id="systems" aria-labelledby="systems-title">
-      <header class="section-head inverse"><p>Independent systems / selected</p><h2 id="systems-title">The work around the work.</h2><span>Practical experiments</span></header>
+    <!-- competition ---------------------------------------------------- -->
+    <section class="competition" id="competition" aria-labelledby="comp-title">
+      <header class="section-head inverse"><p>Competition</p><h2 id="comp-title">Where the work gets graded by someone else.</h2><span>2024—26</span></header>
 
-      <div class="archive-intro">
-        <div class="archive-intro-text">
-          <p>Small systems built to learn how software, hardware, and networks behave below the polished surface.</p>
-          <p class="archive-note">The same curiosity extends beyond code: records in rotation, books in progress, and the devices taken apart to understand them.</p>
-        </div>
-        <div class="personal-index" aria-label="Personal indexes">
-          <p class="index-label">Off-hours indexes</p>
-          <a href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener"><span>Listening</span><strong>Last.fm / Dysous</strong><em>↗</em></a>
-          <a href="https://www.goodreads.com/user/show/162248230-noah-mathew" target="_blank" rel="noopener"><span>Reading</span><strong>Goodreads / Noah Mathew</strong><em>↗</em></a>
-          <div class="record-mark" aria-hidden="true"><span>PLAY / READ</span></div>
-        </div>
-      </div>
-
-      <div class="system-showcase">
-        <article class="system-feature nocturne-feature">
-          <div class="system-feature-copy"><p class="index-label">01 / Personal software</p><h3>Nocturne</h3><p>A private sleep dashboard designed as a glanceable morning ritual—not a spreadsheet of biometrics.</p><ul class="feature-list"><li>Nightly score and readiness</li><li>Sleep-stage timeline</li><li>Sync state and trend context</li></ul><p class="capture-note">Designed showcase · synthetic health data</p></div>
-          <figure class="nocturne-showcase" aria-label="Nocturne interface shown across overview, timeline, and trend views"><div class="nocturne-screen primary-screen"><img src="assets/img/portfolio/nocturne.png" alt="Nocturne overview showing synthetic sleep score, time asleep, readiness, and navigation" width="900" height="900" loading="lazy"></div><div class="nocturne-screen timeline-screen"><p><span>Night timeline</span><b>12:36 AM—8:00 AM</b></p><div class="sleep-track"><i></i><i></i><i></i><i></i><i></i><i></i></div><small>Deep · Core · REM · Awake</small></div><div class="nocturne-screen trend-screen"><p><span>Seven-night rhythm</span><b>7h 42m avg.</b></p><div class="trend-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>Consistency +18% this week</small></div><figcaption>Overview / timeline / trend system</figcaption></figure>
-        </article>
-        <article class="system-feature reverse media-feature">
-          <div class="system-feature-copy"><p class="index-label">02 / Home media</p><h3>Media stack</h3><p>A self-hosted request-to-playback workflow maintained as an exercise in service ownership, careful updates, and practical privacy.</p><p class="capture-note">Capability map · operational details intentionally omitted</p></div>
-          <figure class="media-map"><div class="media-flow" aria-label="Media workflow from discovery to request, library, and playback"><div><span>01</span><b>Discover</b><small>Find something worth watching</small></div><i>→</i><div><span>02</span><b>Request</b><small>One clean intake surface</small></div><i>→</i><div><span>03</span><b>Library</b><small>Automated organization</small></div><i>→</i><div><span>04</span><b>Play</b><small>Available across trusted clients</small></div></div><div class="media-principles"><span>Private by default</span><span>Observable</span><span>Recoverable</span></div><figcaption>Service ownership / capability view</figcaption></figure>
-        </article>
-        <article class="system-feature ring-feature" id="ring-study">
-          <div class="system-feature-copy"><p class="index-label">03 / Industrial design study</p><h3>Colmi R02</h3><p>A custom visualization study of the compact smart ring: exterior proportion, inner sensor packaging, and the tension between wearable comfort and dense hardware.</p><p class="capture-note">Custom 3D concept render · not product photography</p></div>
-          <figure><img src="assets/img/portfolio/colmi-r02-render.webp" alt="Custom 3D concept render of a black smart ring beside an exploded view of its sensor assembly" width="1448" height="1086" loading="lazy"><figcaption>Form and sensor-architecture study</figcaption></figure>
-        </article>
-      </div>
-
-      <div class="system-grid">
-        <article><p class="index-label">04 / Hardware</p><h3>Consumer devices, custom firmware</h3><p>Bootloader exploits, custom payloads, and replacement firmware on personally owned devices—including a Nintendo Switch, Kindle, and Android hardware—to understand how vendor protections work.</p></article>
-        <article><p class="index-label">05 / Teaching system</p><h3>Mini FTP Server</h3><p>A Bash file-sharing server written as teaching material for a Cyber at Baylor hands-on workshop.</p><a class="text-link" href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">Repository ↗</a></article>
-        <article><p class="index-label">06 / Algorithms</p><h3>Interactive simulations</h3><p>Tiger Game applies algorithmic strategy to an asymmetric board game; Falling Balls is a compact physics playground for gravity, collisions, and forces.</p><p class="system-links"><a href="https://github.com/Dysous/NoahNaiveNights" target="_blank" rel="noopener">Tiger Game ↗</a><a href="https://github.com/Dysous/Falling-Balls" target="_blank" rel="noopener">Falling Balls ↗</a></p></article>
-      </div>
-    </section>
-
-    <section class="about" id="about" aria-labelledby="about-title">
-      <header class="section-head"><p>Profile / credentials</p><h2 id="about-title">Security work with a builder's point of view.</h2><span>Waco, Texas</span></header>
-      <div class="about-grid">
-        <p class="lead">Noah is a Baylor computer science student concentrating in cybersecurity, graduating in May 2027.</p>
+      <article class="evidence">
         <div>
-          <p>He leads Cyber at Baylor and the university's Upsilon Pi Epsilon chapter, runs hands-on workshops, and holds CompTIA Security+.</p>
-          <dl class="facts">
-            <div><dt>Education</dt><dd>B.S. Computer Science · GPA 3.75 · Dean's List ×4</dd></div>
-            <div><dt>Experience</dt><dd>Fannie Mae · infrastructure and network cybersecurity</dd></div>
-            <div><dt>Leadership</dt><dd>President · Cyber at Baylor and Upsilon Pi Epsilon</dd></div>
-            <div><dt>Training</dt><dd>Paycom secure development workshop · 2024</dd></div>
-            <div><dt>Focus</dt><dd>Infrastructure security, offensive security, digital forensics</dd></div>
-            <div><dt>Tools</dt><dd>Python, C/C++, Bash, Linux, Wireshark, Burp Suite, Docker</dd></div>
-          </dl>
+          <p class="index-label">National Cyber League · Spring 2026</p>
+          <h3>Individual game</h3>
+          <p>7,010 competitors, nine skill domains, one weekend.</p>
+          <a class="text-link" href="https://cyberskyline.com/report/R79XH9WWFTFU" target="_blank" rel="noopener">Scouting report ↗</a>
         </div>
+        <dl class="metrics">
+          <div><dt>National rank</dt><dd>23<sup>rd</sup></dd></div>
+          <div><dt>Accuracy</dt><dd>92.0%</dd></div>
+          <div><dt>Completion</dt><dd>100%</dd></div>
+        </dl>
+        <div class="rank-table" aria-label="Selected category results">
+          <div><span>Enumeration &amp; exploitation</span><b>100%</b><em>9th</em></div>
+          <div><span>Scanning &amp; reconnaissance</span><b>100%</b><em>12th</em></div>
+          <div><span>Forensics</span><b>100%</b><em>24th</em></div>
+          <div><span>Network traffic analysis</span><b>95.7%</b><em>144th</em></div>
+        </div>
+      </article>
+
+      <div class="comp-grid">
+        <article>
+          <p class="index-label">CCDC Southwest · 2026</p>
+          <h4>Regional qualifier</h4>
+          <p>Eight hours keeping a small-business network alive while a red team takes it apart, with business injects landing the whole time. Qualified with the Baylor team.</p>
+        </article>
+        <article>
+          <p class="index-label">NCL Fall 2024</p>
+          <h4>Team captain</h4>
+          <p>Top 50 of 4,500+ teams.</p>
+        </article>
+        <article>
+          <p class="index-label">Hivestorm 2024</p>
+          <h4>Defensive hardening</h4>
+          <p>39th of 413 teams, and the best Baylor placed.</p>
+        </article>
       </div>
     </section>
 
     <section class="contact" id="contact" aria-labelledby="contact-title">
-      <p class="kicker">Contact / 2027 opportunities</p>
-      <h2 id="contact-title">Start with the work.<br>Then start a conversation.</h2>
+      <p class="kicker">Contact</p>
+      <h2 id="contact-title">If something here<br>is worth talking about.</h2>
       <div>
         <a class="action light" href="mailto:noah_mathew1@baylor.edu">noah_mathew1@baylor.edu ↗</a>
         <a href="https://www.linkedin.com/in/noah-mathew/" target="_blank" rel="noopener">LinkedIn</a>
@@ -149,5 +276,6 @@
   </footer>
 
   <script src="assets/js/main.js"></script>
+  <script src="assets/js/ring.js"></script>
 </body>
 </html>
