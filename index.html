@@ -42,11 +42,8 @@
       <div class="open-copy">
         <p class="meta">Waco, Texas</p>
         <h1>Noah<br>Mathew</h1>
-        <p class="draft lede" data-slot="hero">
-          <span class="draft-tag">your line</span>
-          One or two sentences in your own voice about what this page is. Mine kept
-          sounding like a cover letter, so I pulled it — send me yours and it goes here.
-        </p>
+        <!-- slot: hero — a line or two in Noah's voice about what this page is.
+             Drops in as <p class="lede">…</p> right here. -->
         <p class="meta scroll-hint">Scroll <i aria-hidden="true">↓</i></p>
       </div>
 
@@ -84,10 +81,8 @@
           <!-- the Spotify player mounts here once a playlist is set in main.js -->
           <div class="deck-player" id="deck-player" hidden></div>
 
-          <p class="draft deck-draft" data-slot="music">
-            <span class="draft-tag">your words</span>
-            What this playlist is to you, and why it's the thing playing here.
-          </p>
+          <!-- slot: music — what this playlist is to him, and why it's the thing playing
+               here. Drops in as <p class="deck-note">…</p> right here. -->
         </div>
       </div>
     </section>
@@ -104,10 +99,8 @@
           <p class="spec">A sleep tracker for the Colmi R02, a twenty-dollar smart ring. Reads the
             ring over Bluetooth, keeps every sample in a local SQLite file, and renders a sleep
             score, the night broken into stages, resting heart rate, and seven-day trends.</p>
-          <p class="draft" data-slot="nocturne">
-            <span class="draft-tag">your words</span>
-            Why you built it instead of using the stock app, and what you actually check in the morning.
-          </p>
+          <!-- slot: nocturne — why he built it instead of using the stock app, and what he
+               actually checks in the morning. Drops in as <p class="voice">…</p> right here. -->
           <p class="note">Screens captured from the running app on its own demo data</p>
         </div>
 
@@ -161,10 +154,8 @@
           <p class="spec">The threat engine scores every query on the Shannon entropy of its
             subdomain labels, label length, per-IP rate, and how fast one parent domain is growing
             unique subdomains — the signature of DNS tunneling.</p>
-          <p class="draft" data-slot="resolver">
-            <span class="draft-tag">your words</span>
-            What made you write a resolver from scratch, and what the threat engine caught that surprised you.
-          </p>
+          <!-- slot: resolver — what made him write a resolver from scratch, and what the threat
+               engine caught that surprised him. Drops in as <p class="voice">…</p> right here. -->
           <p class="note">Captured from the resolver running locally — real traffic, real numbers</p>
           <a class="link" href="https://github.com/Dysous/Rust-DNS-Resolver" target="_blank" rel="noopener">Source ↗</a>
         </div>
@@ -185,10 +176,8 @@
           <p class="spec">Type a number and insert it; the tree finds the slot, then recolors and
             rotates to stay balanced. Delete runs the same machinery in reverse. The layout reflows
             as the tree grows, so nodes spread out instead of piling up mid-rotation.</p>
-          <p class="draft" data-slot="tree">
-            <span class="draft-tag">your words</span>
-            The part of this you'd want someone to notice — the layout reflow, the rotations, the sound design, whatever it was.
-          </p>
+          <!-- slot: tree — the part of this he'd want someone to notice: the layout reflow, the
+               rotations, the sound design. Drops in as <p class="voice">…</p> right here. -->
           <p class="note">A 45-second run of the compiled project, with its own audio. Scrub it.</p>
           <a class="link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Source ↗</a>
         </div>
@@ -215,10 +204,8 @@
             registration, flag validation, a live scoreboard, and an admin panel for moving the gates
             mid-event. Hands-on challenges lived in a separate Ubuntu container reachable only over
             SSH — no internet, one CPU, half a gig of RAM.</p>
-          <p class="draft" data-slot="rpz">
-            <span class="draft-tag">your words</span>
-            How the event actually went, and what you'd change about running it.
-          </p>
+          <!-- slot: rpz — how the event actually went, and what he'd change about running it.
+               Drops in as <p class="voice">…</p> right here. -->
           <p class="note">The project's own UI preview · private repository</p>
         </div>
         <div class="work-visual stack-visual">
@@ -236,10 +223,8 @@
           <p class="spec">Scrapes structured sources — Wikipedia tables, Goodreads lists — into a
             wordlist shaped like the thing being attacked, with case and leetspeak variants layered on.
             Written mid-round during an NCL password-cracking event.</p>
-          <p class="draft" data-slot="ctf-tools">
-            <span class="draft-tag">your words</span>
-            The round this came out of, and whether it worked.
-          </p>
+          <!-- slot: ctf-tools — the round this came out of, and whether it worked.
+               Drops in as <p class="voice">…</p> right here. -->
           <a class="link" href="https://github.com/Dysous/CTF-Tools" target="_blank" rel="noopener">Source ↗</a>
         </div>
         <div class="work-visual">
@@ -339,10 +324,8 @@
             <h2>Regional qualifier</h2>
             <p class="spec">Eight hours keeping a small-business network alive while a red team takes
               it apart, with business injects landing the whole time. We qualified.</p>
-            <p class="draft" data-slot="ccdc">
-              <span class="draft-tag">your words</span>
-              What that day was actually like, in your voice.
-            </p>
+            <!-- slot: ccdc — what that day was actually like, in his voice.
+                 Drops in as <p class="voice">…</p> right here. -->
           </div>
         </article>
 
