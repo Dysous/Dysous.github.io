@@ -166,7 +166,7 @@
     if (!mount || !source || deck.iframe) return;
     var f = document.createElement("iframe");
     f.src = "https://open.spotify.com/embed/" + source.type + "/" + source.id +
-            "?utm_source=generator" + (autoplay ? "&autoplay=1" : "");
+            "?utm_source=generator&theme=0" + (autoplay ? "&autoplay=1" : "");
     f.width = "100%";
     f.height = "152";
     f.frameBorder = "0";
@@ -195,7 +195,11 @@
       API.createController(host, {
         uri: "spotify:" + source.type + ":" + source.id,
         width: "100%",
-        height: 152
+        height: 152,
+        /* "dark" is what the iframe API turns into ?theme=0. Without it
+           Spotify tints the whole panel from the album art, so the deck
+           would change colour every track and fight the page. */
+        theme: "dark"
       }, function (ctrl) {
         deck.ctrl = ctrl;
         deck.iframe = true;
