@@ -104,7 +104,7 @@
      toggles in Spotify.
      ———————————————————————————————————————————————————————————————— */
 
-  var PLAYLIST = "";
+  var PLAYLIST = "https://open.spotify.com/playlist/6o7tZiunCJpBw9pEAnXwrq";
 
   var deck = { ctrl: null, iframe: null, side: "A", playing: false, armed: false };
 
