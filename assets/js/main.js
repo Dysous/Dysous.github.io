@@ -91,14 +91,22 @@
   /* ================================================================
      The deck.
 
-     This is a placeholder instrument, not a soundtrack. Noah asked for
-     music he actually listens to; until he picks it, this stays a quiet
-     ambient bed rather than pretending to be a song.
-     ================================================================ */
+     ——— THE ONE LINE TO EDIT ———————————————————————————————————————
+     Paste a Spotify playlist (or album, or single track) link between
+     the quotes below and the deck becomes a real player. Leave it
+     empty and the deck stays a silent object — no play button, no
+     audio. Both states are intentional; nothing else needs changing.
 
-  var deck = { ctx: null, master: null, timer: null, side: "A", playing: false };
-  var SIDE_A = [146.83, 174.61, 220.00, 261.63, 293.66, 349.23];
-  var SIDE_B = [130.81, 155.56, 196.00, 233.08, 261.63, 311.13];
+       var PLAYLIST = "https://open.spotify.com/playlist/xxxxxxxx";
+
+     The playlist has to be public for anyone but you to hear it.
+     Public is not the same as shown-on-profile — those are separate
+     toggles in Spotify.
+     ———————————————————————————————————————————————————————————————— */
+
+  var PLAYLIST = "";
+
+  var deck = { ctrl: null, iframe: null, side: "A", playing: false, armed: false };
 
   var btn = document.getElementById("soundtrack");
   var scene = document.querySelector(".listening-scene");
@@ -106,71 +114,38 @@
   var chip = document.getElementById("now-playing");
   var chipLabel = document.getElementById("now-playing-label");
   var opening = document.querySelector(".open");
+  var mount = document.getElementById("deck-player");
 
-  function voice(freq, when, dur, peak) {
-    var ctx = deck.ctx;
-    var osc = ctx.createOscillator();
-    var gain = ctx.createGain();
-    var filter = ctx.createBiquadFilter();
-    osc.type = "sine";
-    osc.frequency.value = freq;
-    filter.type = "lowpass";
-    filter.frequency.value = 900;
-    gain.gain.setValueAtTime(0.0001, when);
-    gain.gain.exponentialRampToValueAtTime(peak, when + dur * 0.35);
-    gain.gain.exponentialRampToValueAtTime(0.0001, when + dur);
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(deck.master);
-    osc.start(when);
-    osc.stop(when + dur + 0.1);
+  /* Accepts any of the shapes a Spotify "copy link" actually produces:
+       https://open.spotify.com/playlist/<id>?si=...
+       https://open.spotify.com/intl-de/track/<id>
+       https://open.spotify.com/embed/album/<id>
+       spotify:playlist:<id>
+       <id>                        (bare, assumed a playlist)
+     Trailing query strings are ignored — the id stops at the first
+     character that is not alphanumeric. */
+  function parseSpotify(raw) {
+    var s = String(raw || "").trim();
+    if (!s) return null;
+    var m = s.match(
+      /(?:spotify\.com\/(?:intl-[a-z-]{2,7}\/)?(?:embed\/)?|spotify:)(playlist|album|track)[:/]([A-Za-z0-9]+)/i
+    );
+    if (m) return { type: m[1].toLowerCase(), id: m[2] };
+    if (/^[A-Za-z0-9]{22}$/.test(s)) return { type: "playlist", id: s };
+    return null;
   }
 
-  function schedule() {
-    if (!deck.playing) return;
-    var scale = deck.side === "A" ? SIDE_A : SIDE_B;
-    var now = deck.ctx.currentTime;
-    var root = scale[Math.floor(Math.random() * 3)];
-    voice(root, now + 0.05, 5.5, 0.07);
-    voice(root * 1.5, now + 0.6, 4.2, 0.035);
-    voice(scale[3 + Math.floor(Math.random() * 3)], now + 1.4, 3.4, 0.028);
-    deck.timer = setTimeout(schedule, 3600 + Math.random() * 1400);
-  }
+  var source = parseSpotify(PLAYLIST);
 
-  function startDeck() {
-    var Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return false;
-    if (!deck.ctx) {
-      deck.ctx = new Ctx();
-      deck.master = deck.ctx.createGain();
-      deck.master.gain.value = 0.0001;
-      deck.master.connect(deck.ctx.destination);
-    }
-    if (deck.ctx.state === "suspended") deck.ctx.resume();
-    deck.playing = true;
-    var t = deck.ctx.currentTime;
-    deck.master.gain.cancelScheduledValues(t);
-    deck.master.gain.setValueAtTime(Math.max(deck.master.gain.value, 0.0001), t);
-    deck.master.gain.exponentialRampToValueAtTime(0.9, t + 1.6);
-    schedule();
-    return true;
-  }
-
-  function stopDeck() {
-    deck.playing = false;
-    clearTimeout(deck.timer);
-    if (!deck.ctx) return;
-    var t = deck.ctx.currentTime;
-    deck.master.gain.cancelScheduledValues(t);
-    deck.master.gain.setValueAtTime(Math.max(deck.master.gain.value, 0.0001), t);
-    deck.master.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
-  }
+  /* No link yet — the deck is furniture, not a broken player. */
+  if (!source && btn) btn.hidden = true;
 
   function setPlaying(on) {
+    deck.playing = on;
     if (btn) {
       btn.setAttribute("aria-pressed", String(on));
       btn.querySelector(".play-icon").textContent = on ? "❚❚" : "▶";
-      btn.querySelector(".sound-label").textContent = on ? "Stop" : "Play";
+      btn.querySelector(".sound-label").textContent = on ? "Pause" : "Play";
     }
     if (scene) scene.classList.toggle("playing", on);
     updateChip();
@@ -185,20 +160,81 @@
     if (chipLabel) chipLabel.textContent = "Side " + deck.side;
   }
 
-  if (btn) {
-    btn.addEventListener("click", function () {
-      if (deck.playing) { stopDeck(); setPlaying(false); }
-      else if (startDeck()) { setPlaying(true); }
-      else {
-        btn.disabled = true;
-        btn.querySelector(".sound-label").textContent = "Unavailable";
+  /* Plain embed: Spotify's own controls, used when the iframe API is
+     unavailable (blocked script, no network to Spotify, etc.). */
+  function mountPlainEmbed(autoplay) {
+    if (!mount || !source || deck.iframe) return;
+    var f = document.createElement("iframe");
+    f.src = "https://open.spotify.com/embed/" + source.type + "/" + source.id +
+            "?utm_source=generator" + (autoplay ? "&autoplay=1" : "");
+    f.width = "100%";
+    f.height = "152";
+    f.frameBorder = "0";
+    f.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+    f.loading = "lazy";
+    f.title = "Spotify player";
+    mount.appendChild(f);
+    deck.iframe = f;
+    mount.hidden = false;
+    if (btn) btn.hidden = true;      /* Spotify's transport takes over */
+    if (scene) scene.classList.add("has-player");
+  }
+
+  /* Preferred path: Spotify's iframe API, so the record spins and the
+     chip follows the real playback state instead of guessing. */
+  function mountControlled() {
+    if (!mount || !source) return;
+    var host = document.createElement("div");
+    mount.appendChild(host);
+    mount.hidden = false;
+    if (scene) scene.classList.add("has-player");
+
+    var settled = false;
+    window.onSpotifyIframeApiReady = function (API) {
+      settled = true;
+      API.createController(host, {
+        uri: "spotify:" + source.type + ":" + source.id,
+        width: "100%",
+        height: 152
+      }, function (ctrl) {
+        deck.ctrl = ctrl;
+        deck.iframe = true;
+        ctrl.addListener("playback_update", function (e) {
+          if (e && e.data) setPlaying(!e.data.isPaused);
+        });
+        if (deck.armed) ctrl.play();
+      });
+    };
+
+    var s = document.createElement("script");
+    s.src = "https://open.spotify.com/embed/iframe-api/v1";
+    s.async = true;
+    s.onerror = function () { if (!settled) { mount.removeChild(host); mountPlainEmbed(deck.armed); } };
+    document.head.appendChild(s);
+
+    /* script loaded but never called back — fall through to plain */
+    setTimeout(function () {
+      if (!settled && !deck.ctrl) {
+        if (host.parentNode === mount) mount.removeChild(host);
+        mountPlainEmbed(deck.armed);
       }
-    });
+    }, 6000);
+  }
+
+  function toggleDeck() {
+    if (!source) return;
+    if (deck.ctrl) { deck.ctrl.togglePlay(); return; }
+    deck.armed = true;              /* play as soon as it is ready */
+    if (!deck.iframe) mountControlled();
+  }
+
+  if (btn && source) {
+    btn.addEventListener("click", toggleDeck);
   }
 
   if (chip) {
     chip.addEventListener("click", function () {
-      stopDeck();
+      if (deck.ctrl) deck.ctrl.pause();
       setPlaying(false);
     });
   }
@@ -312,7 +348,9 @@
   function flipRecord() {
     deck.side = deck.side === "A" ? "B" : "A";
     if (label) label.textContent = "SIDE " + deck.side;
-    if (!deck.playing && startDeck()) setPlaying(true);
+    /* visual flip always; it only starts the player if there is one */
+    if (scene) scene.classList.add("flipped");
+    if (source && !deck.playing) toggleDeck();
     updateChip();
     try {
       console.log("%cSide " + deck.side + ". RPO{the_easter_egg_was_the_b_side}", "color:#a9c186;font:13px monospace");
