@@ -67,48 +67,96 @@ h1,h2,h3{font-weight:500;letter-spacing:-.03em;margin:0}
 /* The rail replaces navigation: it shows where you are, and only names a
    section once you are standing in it. It straddles the boundary between the
    paper column and the dark capture panels, so rather than try to detect what
-   is behind it, it draws itself in difference blend and is legible on both. */
-.rail{position:fixed;left:calc(var(--gut) - 30px);top:50%;transform:translateY(-50%);z-index:25;
-  display:flex;align-items:center;gap:10px;pointer-events:none;
+   is behind it, it draws itself in difference blend and is legible on both.
+
+   Everything it draws has to stay inside the --rail gutter, because the panel
+   to its right is a full-bleed image. So the standing name runs vertically —
+   ~14px wide instead of ~110px — and the horizontal names are absolutely
+   positioned, costing no width at all, and appear only on hover or focus. */
+.rail{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:25;
+  display:flex;align-items:center;gap:8px;pointer-events:none;
   mix-blend-mode:difference;color:#fff}
+/* bottom-to-top, the way the record spines two screens up are set */
+.rail-now{writing-mode:vertical-rl;transform:rotate(180deg);max-height:min(42vh,320px);
+  overflow:hidden;white-space:nowrap;font:9px var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;opacity:0;transition:opacity .4s ease}
+.rail-now.on{opacity:.85}
 .rail-line{position:relative;width:1px;height:min(42vh,320px);background:rgba(255,255,255,.28)}
 .rail-line i{position:absolute;left:0;top:0;width:1px;height:0;background:#fff;transition:height .2s linear}
 .rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
 .rail li{pointer-events:auto}
-.rail button{display:flex;align-items:center;gap:9px;background:none;border:0;padding:2px 0;cursor:pointer;
+.rail button{position:relative;display:flex;align-items:center;background:none;border:0;padding:3px 0;cursor:pointer;
   font:9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#fff;opacity:.4;transition:opacity .25s}
 .rail button:before{content:"";width:9px;height:1px;background:currentColor;transition:width .25s}
-.rail button span{white-space:nowrap;opacity:0;transform:translateX(-5px);
+.rail button span{position:absolute;left:100%;top:50%;margin-left:9px;white-space:nowrap;
+  opacity:0;pointer-events:none;transform:translateY(-50%) translateX(-5px);
   transition:opacity .3s ease,transform .3s cubic-bezier(.16,1,.3,1)}
 .rail button:hover,.rail li.on button{opacity:1}
 .rail li.on button:before{width:20px}
-.rail button:hover span,.rail li.on button span{opacity:1;transform:none}
+.rail button:hover span,.rail button:focus-visible span{opacity:1;transform:translateY(-50%)}
 
 /* the deck follows you down once it is playing */
-.now-playing{position:fixed;left:var(--gut);bottom:22px;z-index:30;display:flex;align-items:center;gap:9px;
+/* sits on the rail's line rather than in the text column, so it reads as
+   part of the left-hand chrome instead of something dropped on a paragraph */
+.now-playing{position:fixed;left:14px;bottom:22px;z-index:30;display:flex;align-items:center;gap:9px;
   background:var(--dark);color:#efebe1;border:0;padding:9px 14px 9px 11px;border-radius:999px;cursor:pointer;
   font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.now-playing{max-width:min(380px,66vw);text-align:left}
 .now-playing[hidden]{display:none}
+/* the chip used to say only "Side A", which told you nothing while you
+   scrolled — the track name is the thing you actually want from it */
+.np-text{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.np-side{opacity:.62}
+.np-track{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font:13px/1.25 var(--serif);letter-spacing:.01em;text-transform:none}
+.np-track[hidden]{display:none}
 .now-playing i{width:9px;height:9px;border-radius:50%;background:var(--lichen);flex:none;
   box-shadow:0 0 0 0 rgba(169,193,134,.6);animation:pulse 2.4s ease-out infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 9px rgba(169,193,134,0)}100%{box-shadow:0 0 0 0 rgba(169,193,134,0)}}
 
-/* ——— opening ——————————————————————————————————————————————— */
-.open{min-height:100svh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.82fr);align-items:stretch}
-.open-copy{display:flex;flex-direction:column;justify-content:center;padding:clamp(80px,10vh,140px) clamp(30px,4vw,70px) 60px calc(var(--gut) + var(--rail) - 40px)}
-.open h1{font:500 clamp(74px,11vw,168px)/.84 var(--serif);letter-spacing:-.055em;margin:14px 0 36px}
+/* ——— opening ———————————————————————————————————————————————
+   The opening is the first of the two-column blocks, not a separate
+   layout: same rail gutter, same .9/1.1 split, same inner padding as
+   .work below it. That is what keeps the dark edge of the listening
+   room and the dark edge of the Nocturne panel on one straight line
+   instead of stepping ~100px sideways at the seam. */
+.open{min-height:100svh;display:grid;padding-left:var(--rail);
+  grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch}
+.open-copy{display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(80px,10vh,140px) clamp(28px,4vw,64px) 60px var(--gut)}
+/* sized to "Mathew" fitting the .9fr copy column — the column is narrower
+   than it was now that the opening shares the stream's grid, and the name
+   running out over the listening room is not a bleed, it's an overflow */
+.open h1{font:500 clamp(68px,9vw,132px)/.86 var(--serif);letter-spacing:-.055em;margin:0 0 36px}
 .lede{font:clamp(18px,1.6vw,24px)/1.45 var(--serif);max-width:30ch}
 .scroll-hint{margin:auto 0 0;color:var(--ink-soft)}
 .scroll-hint i{display:inline-block;font-style:normal;animation:nudge 2.4s ease-in-out infinite}
 @keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 
 /* ——— the listening room ——————————————————————————————————— */
-.listening-scene{background:var(--dark);color:#efebe1;display:flex;align-items:center;justify-content:center;padding:clamp(34px,4vw,60px)}
+/* same inset as .work-visual, so the shelf and the Nocturne phones sit
+   the same distance in from the panel edge they share */
+.listening-scene{background:var(--dark);color:#efebe1;display:flex;align-items:center;justify-content:center;padding:clamp(28px,4vw,56px)}
 .scene-frame{width:100%;max-width:520px;display:flex;flex-direction:column;gap:22px}
 .scene-row{display:grid;grid-template-columns:132px minmax(0,1fr);gap:clamp(18px,2.4vw,30px);align-items:end}
 .scene-row>*{min-width:0}
 .shelf{display:flex;flex-direction:column;justify-content:flex-end}
-.spines{display:flex;align-items:flex-end;gap:5px;height:clamp(180px,26vh,250px)}
+.spines{position:relative;display:flex;align-items:flex-end;gap:5px;height:clamp(180px,26vh,250px)}
+/* Records file themselves in here as they play: each sleeve is the real
+   cover art of a track that actually came out of the deck, fetched from
+   Spotify's oEmbed. An empty shelf means nothing has played yet — it is
+   not a shelf of invented albums. */
+.sleeves{position:absolute;left:0;right:0;bottom:0;margin:0;padding:0;list-style:none;
+  display:flex;align-items:flex-end;pointer-events:none}
+.sleeves li{width:58%;flex:none;aspect-ratio:1;margin-right:-44%;
+  border:1px solid rgba(0,0,0,.55);box-shadow:0 9px 22px rgba(0,0,0,.6);
+  transform-origin:bottom left;animation:sleeve-in .55s cubic-bezier(.16,1,.3,1) both}
+.sleeves li:last-child{margin-right:0}
+.sleeves img{display:block;width:100%;height:100%;object-fit:cover}
+@keyframes sleeve-in{
+  from{opacity:0;transform:rotate(-15deg) translateY(12px)}
+  to{opacity:1;transform:rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){.sleeves li{transform:rotate(-6deg)}}
 .spine{position:relative;flex:1;border-radius:1px 1px 0 0;background:#2a2d27;text-decoration:none;
   box-shadow:inset -3px 0 0 rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.05);transition:transform .25s,background .25s}
 .spine span{position:absolute;bottom:11px;left:50%;transform:translateX(-50%) rotate(180deg);writing-mode:vertical-rl;
@@ -135,9 +183,25 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
     repeating-radial-gradient(circle at 50% 50%,transparent 0,transparent 1.5%,rgba(255,255,255,.028) 1.6%,transparent 1.75%),
     radial-gradient(circle at 36% 28%,rgba(255,255,255,.06),transparent 46%),#0a0908;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 12px 30px rgba(0,0,0,.65)}
-.record-label{width:31%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;
-  background:radial-gradient(circle at 42% 34%,#ded7c4,#c3bcab);color:#33302a;
-  font:8px var(--mono);letter-spacing:.12em;text-transform:uppercase;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+/* A pressed paper label rather than a blank disc: a moss outer band, the
+   concentric print rings, a punched spindle hole. Once a track is playing
+   its real cover art replaces the paper and keeps the hole. */
+.record-label{position:relative;width:34%;aspect-ratio:1;border-radius:50%;overflow:hidden;
+  display:grid;place-items:center;text-align:center;color:#2b2822;
+  background:
+    radial-gradient(circle at 50% 50%,#080907 0 6.5%,transparent 7%),
+    repeating-radial-gradient(circle at 50% 50%,transparent 0 14.5%,rgba(43,40,34,.17) 14.5% 15.3%,transparent 15.8%),
+    radial-gradient(circle at 50% 50%,transparent 0 61%,#4c6654 61.5% 100%),
+    radial-gradient(circle at 42% 34%,#ded7c4,#c3bcab);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+.record-side{position:relative;z-index:1;transform:translateY(150%);
+  font:7px var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.record-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.record-art[hidden]{display:none}
+.record-label.has-art .record-side{display:none}
+.record-label.has-art:after{content:"";position:absolute;left:50%;top:50%;z-index:2;
+  width:13%;height:13%;transform:translate(-50%,-50%);border-radius:50%;background:#080907;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12)}
 .playing .record,.flipped .record{animation:spin 2.4s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.playing .record,.flipped .record{animation:none}}
@@ -163,20 +227,69 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
 .deck-player[hidden]{display:none}
 .deck-player iframe{display:block;width:100%;border:0;border-radius:10px;
   box-shadow:0 10px 26px rgba(0,0,0,.45)}
+/* Spotify gives signed-out visitors 30 seconds a track and exposes no
+   volume control to an embed. Both are its rules, not the page's, so
+   the page says so rather than looking broken. */
+.deck-fine{margin:12px 0 0;max-width:44ch;font:9px/1.7 var(--mono);letter-spacing:.08em;
+  text-transform:uppercase;color:#7d7f76}
+.deck-fine[hidden]{display:none}
+
+/* ——— draft copy ————————————————————————————————————————————
+   Visible placeholders, on purpose. The site isn't listed anywhere yet,
+   and Noah would rather see the shape of a paragraph sitting in the
+   layout than read a gap where one will go. Each box is marked, so it
+   can never be mistaken for shipped copy.
+
+   To fill one: find `slot: <name>` in index.html and swap the whole
+   <p class="draft"> for <p class="voice">his line</p>. The deck's slot
+   uses .deck-note instead; the hero's uses .lede. Nothing else moves. */
+.draft{position:relative;margin:0 0 18px;max-width:50ch;padding:15px 17px;
+  border:1px dashed rgba(76,102,84,.5);border-radius:2px;background:rgba(76,102,84,.045);
+  color:var(--ink-soft);font:italic 15px/1.55 var(--serif)}
+.draft-tag{display:block;margin-bottom:7px;font:9px var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;font-style:normal;color:var(--moss)}
+.draft.lede{font-size:clamp(16px,1.3vw,19px);max-width:34ch}
+.deck-draft{border-color:rgba(239,235,225,.3);background:rgba(239,235,225,.05);color:#b9bbb2;margin:0}
+.deck-draft .draft-tag{color:#8e9086}
+.has-player .deck-draft{margin-top:14px}
+/* .confirm is a different question: not "send me your words" but "I wrote
+   something from a one-line note, check that it's true." */
+.draft.confirm{border-color:rgba(181,118,44,.55);background:rgba(181,118,44,.06)}
+.draft.confirm .draft-tag{color:var(--focus)}
+.grid-block .draft{font-size:14px;padding:12px 14px}
 
 /* ——— Noah's voice ——————————————————————————————————————————
-   The eight copy slots sit empty on purpose — he would rather the page
-   say nothing than say it in my words. Each one is an HTML comment in
-   index.html marked `slot: <name>`; his line lands there as .voice and
-   needs no other change. Until then the page simply doesn't speak.
-   .spec stays factual; .voice is him. */
+   Where his real words land once a draft box is replaced. .spec stays
+   factual and is mine; .voice is him, and reads differently for it. */
 .voice{margin:0 0 18px;max-width:50ch;padding-left:16px;
   border-left:2px solid rgba(76,102,84,.34);
   font:clamp(15px,1.2vw,17px)/1.62 var(--serif);color:var(--ink)}
-.ccdc .voice{border-left-color:rgba(239,235,225,.28);color:#d6d8cf}
+.ccdc .voice,.ccdc .draft{border-color:rgba(239,235,225,.3);color:#d6d8cf}
+.ccdc .voice{border-left-color:rgba(239,235,225,.28)}
+.ccdc .draft{background:rgba(239,235,225,.05);margin-bottom:0}
+.ccdc .draft-tag{color:#8e9086}
 .deck-note{margin:14px 0 0;max-width:42ch;padding-left:14px;
   border-left:2px solid rgba(239,235,225,.28);
   font:14px/1.6 var(--serif);color:#b9bbb2}
+
+/* ——— media that hasn't been shot yet ———————————————————————
+   Same honesty as the draft boxes, for pictures instead of prose: the
+   slot holds its real aspect ratio so the layout around it is already
+   final, and names the file that replaces it. */
+.media-slot{margin:0;min-width:0}
+.slot-frame{position:relative;display:flex;flex-direction:column;justify-content:center;gap:7px;
+  width:100%;padding:clamp(18px,3vw,32px);text-align:center;
+  border:1px dashed rgba(239,235,225,.3);background:rgba(239,235,225,.035)}
+.slot-tag{font:9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lichen)}
+.slot-what{font:italic clamp(14px,1.2vw,17px)/1.45 var(--serif);color:#b9bbb2;max-width:34ch;margin:0 auto}
+.slot-how{font:9px/1.7 var(--mono);letter-spacing:.08em;color:#7d7f76}
+.media-slot-video .slot-frame:before{content:"▶";position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);font-size:clamp(40px,7vw,78px);color:rgba(239,235,225,.06)}
+/* on paper rather than on a dark panel */
+.grid-block .slot-frame{margin-top:18px;border-color:rgba(76,102,84,.45);background:rgba(76,102,84,.045)}
+.grid-block .slot-tag{color:var(--moss)}
+.grid-block .slot-what{color:var(--ink-soft)}
+.grid-block .slot-how{color:#8b8d83}
 
 /* ——— the stream ———————————————————————————————————————————
    No section headers. Entries are separated by air and by a hairline
@@ -303,7 +416,14 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
 .competition:before{background:var(--dark-line)!important}
 .evidence{padding:clamp(56px,8vh,100px) var(--gut);display:grid;grid-template-columns:1.2fr 1fr;gap:clamp(30px,4vw,56px);
   border-bottom:1px solid var(--dark-line)}
-.evidence h2{font:500 clamp(34px,4vw,58px)/1 var(--serif);margin:0 0 16px}
+/* The competition is the headline; what you did inside it is the line
+   under it. It used to be the other way round, which made "Individual
+   game" — two words that mean nothing on their own — read ten times
+   larger than "National Cyber League". */
+.sub{margin:0 0 18px;font:clamp(17px,1.7vw,23px)/1.3 var(--serif);color:var(--ink-soft)}
+.competition .sub{color:#b9bbb2}
+.comp-grid .sub,.ccdc-copy .sub{font-size:clamp(15px,1.4vw,19px);margin-bottom:16px}
+.evidence h2{font:500 clamp(30px,3.4vw,50px)/1.02 var(--serif);margin:0 0 12px}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);margin:0;align-self:center}
 .metrics div{border-left:1px solid var(--dark-line);padding:0 16px}
 .metrics dt{font:10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#b9bbb2}
@@ -321,13 +441,13 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
 .ccdc img{display:block;width:100%;border:1px solid var(--dark-line)}
 .ccdc figcaption{margin-top:12px;font:9px/1.7 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#8a8c83}
 .ccdc figcaption a{color:#b9bbb2}
-.ccdc-copy h2{font:500 clamp(28px,3.2vw,46px)/1.04 var(--serif);margin:0 0 18px}
+.ccdc-copy h2{font:500 clamp(28px,3.2vw,46px)/1.04 var(--serif);margin:0 0 12px}
 .ccdc .voice{margin-bottom:0}
 
 .comp-grid{display:grid;grid-template-columns:repeat(2,1fr)}
 .comp-grid article{padding:clamp(40px,5vh,64px) var(--gut);border-right:1px solid var(--dark-line)}
 .comp-grid article:last-child{border-right:0}
-.comp-grid h3{font:500 clamp(24px,2.2vw,34px)/1.06 var(--serif);margin:0 0 14px}
+.comp-grid h3{font:500 clamp(22px,2vw,31px)/1.06 var(--serif);margin:0 0 10px}
 
 /* ——— footer ————————————————————————————————————————————————— */
 footer{display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:26px var(--gut);

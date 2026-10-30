@@ -19,7 +19,12 @@
   <!-- the only persistent chrome: a name, a progress rail, three small links -->
   <a class="mark" href="#top" aria-label="Noah Mathew, top of page">Noah Mathew</a>
 
+  <!-- The rail names the section you're standing in, but it lives in a 76px
+       gutter next to full-bleed capture panels. A horizontal name would run
+       straight over them, so the standing name is set vertically along the
+       line; only a deliberate hover flies a horizontal one out. -->
   <nav class="rail" aria-label="Page sections">
+    <span class="rail-now" id="rail-now" aria-hidden="true"></span>
     <span class="rail-line" aria-hidden="true"><i id="rail-fill"></i></span>
     <ol id="rail-ticks"></ol>
   </nav>
@@ -32,7 +37,11 @@
 
   <!-- the deck, once started, follows you down the page as a small chip -->
   <button class="now-playing" id="now-playing" type="button" hidden>
-    <i aria-hidden="true"></i><span id="now-playing-label">Side A</span>
+    <i aria-hidden="true"></i>
+    <span class="np-text">
+      <span class="np-side" id="now-playing-side">Side A</span>
+      <span class="np-track" id="now-playing-track" hidden></span>
+    </span>
   </button>
 
   <main id="top">
@@ -40,10 +49,13 @@
     <!-- ——— opening ——————————————————————————————————————————————— -->
     <section class="open" aria-label="Introduction">
       <div class="open-copy">
-        <p class="meta">Waco, Texas</p>
         <h1>Noah<br>Mathew</h1>
-        <!-- slot: hero — a line or two in Noah's voice about what this page is.
-             Drops in as <p class="lede">…</p> right here. -->
+        <!-- slot: hero — swap this whole <p> for <p class="lede">your line</p> -->
+        <p class="draft lede" data-slot="hero">
+          <span class="draft-tag">your line</span>
+          One or two sentences in your own voice about what this page is. Mine kept
+          sounding like a cover letter, so I pulled it — send me yours and it goes here.
+        </p>
         <p class="meta scroll-hint">Scroll <i aria-hidden="true">↓</i></p>
       </div>
 
@@ -58,13 +70,22 @@
                 <span class="spine s4" aria-hidden="true"></span>
                 <span class="spine s5" aria-hidden="true"></span>
                 <span class="spine s6" aria-hidden="true"></span>
+                <!-- Sleeves file themselves in as tracks actually play: the cover of
+                     each played track is pulled from Spotify's oEmbed and propped at
+                     the front of the shelf. Nothing here is a mock-up of an album. -->
+                <ol class="sleeves" id="sleeves" aria-label="Records played so far"></ol>
               </div>
               <div class="shelf-board" aria-hidden="true"></div>
             </div>
 
             <div class="deck">
               <div class="platter" id="platter">
-                <div class="record" id="record"><span class="record-label" id="record-label">SIDE A</span></div>
+                <div class="record" id="record">
+                  <span class="record-label" id="record-label">
+                    <img class="record-art" id="record-art" alt="" width="300" height="300" hidden>
+                    <span class="record-side" id="record-side">Side A</span>
+                  </span>
+                </div>
               </div>
               <div class="tonearm" aria-hidden="true"><i></i></div>
             </div>
@@ -81,8 +102,16 @@
           <!-- the Spotify player mounts here once a playlist is set in main.js -->
           <div class="deck-player" id="deck-player" hidden></div>
 
-          <!-- slot: music — what this playlist is to him, and why it's the thing playing
-               here. Drops in as <p class="deck-note">…</p> right here. -->
+          <!-- Spotify's own limitation, worth saying out loud so a visitor who
+               gets 30 seconds a track doesn't think the deck is broken. -->
+          <p class="deck-fine" id="deck-fine" hidden>Spotify plays 30-second previews unless
+            you're signed in to Spotify in this browser.</p>
+
+          <!-- slot: music — swap this whole <p> for <p class="deck-note">your words</p> -->
+          <p class="draft deck-draft" data-slot="music">
+            <span class="draft-tag">your words</span>
+            What this playlist is to you, and why it's the thing playing here.
+          </p>
         </div>
       </div>
     </section>
@@ -99,8 +128,11 @@
           <p class="spec">A sleep tracker for the Colmi R02, a twenty-dollar smart ring. Reads the
             ring over Bluetooth, keeps every sample in a local SQLite file, and renders a sleep
             score, the night broken into stages, resting heart rate, and seven-day trends.</p>
-          <!-- slot: nocturne — why he built it instead of using the stock app, and what he
-               actually checks in the morning. Drops in as <p class="voice">…</p> right here. -->
+          <!-- slot: nocturne — swap this whole <p> for <p class="voice">your words</p> -->
+          <p class="draft" data-slot="nocturne">
+            <span class="draft-tag">your words</span>
+            Why you built it instead of using the stock app, and what you actually check in the morning.
+          </p>
           <p class="note">Screens captured from the running app on its own demo data</p>
         </div>
 
@@ -154,8 +186,11 @@
           <p class="spec">The threat engine scores every query on the Shannon entropy of its
             subdomain labels, label length, per-IP rate, and how fast one parent domain is growing
             unique subdomains — the signature of DNS tunneling.</p>
-          <!-- slot: resolver — what made him write a resolver from scratch, and what the threat
-               engine caught that surprised him. Drops in as <p class="voice">…</p> right here. -->
+          <!-- slot: resolver — swap this whole <p> for <p class="voice">your words</p> -->
+          <p class="draft" data-slot="resolver">
+            <span class="draft-tag">your words</span>
+            What made you write a resolver from scratch, and what the threat engine caught that surprised you.
+          </p>
           <p class="note">Captured from the resolver running locally — real traffic, real numbers</p>
           <a class="link" href="https://github.com/Dysous/Rust-DNS-Resolver" target="_blank" rel="noopener">Source ↗</a>
         </div>
@@ -176,8 +211,11 @@
           <p class="spec">Type a number and insert it; the tree finds the slot, then recolors and
             rotates to stay balanced. Delete runs the same machinery in reverse. The layout reflows
             as the tree grows, so nodes spread out instead of piling up mid-rotation.</p>
-          <!-- slot: tree — the part of this he'd want someone to notice: the layout reflow, the
-               rotations, the sound design. Drops in as <p class="voice">…</p> right here. -->
+          <!-- slot: tree — swap this whole <p> for <p class="voice">your words</p> -->
+          <p class="draft" data-slot="tree">
+            <span class="draft-tag">your words</span>
+            The part of this you'd want someone to notice — the layout reflow, the rotations, the sound design, whatever it was.
+          </p>
           <p class="note">A 45-second run of the compiled project, with its own audio. Scrub it.</p>
           <a class="link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Source ↗</a>
         </div>
@@ -194,18 +232,73 @@
         </div>
       </article>
 
-      <!-- 04 ——— Ready Player Zero —————————————————————————————— -->
-      <article class="work reverse" id="rpz" data-rail="Ready Player Zero">
+      <!-- 04 ——— Book Nook ——————————————————————————————————————
+           Noah's Software 2 group project. He owns the map and the
+           Goodreads import; the media for all three panels is still to
+           come, so each one is a marked slot rather than a stand-in. -->
+      <article class="work reverse" id="book-nook" data-rail="Book Nook">
         <div class="work-copy">
           <p class="num" aria-hidden="true">04</p>
+          <h2>Book Nook</h2>
+          <p class="meta">Mapbox · OpenStreetMap · scraping · group project</p>
+          <p class="spec">A book club app built with a team for Software Engineering 2. My two
+            pieces were the map and the Goodreads import.</p>
+          <p class="spec">The map plots the bookshops, libraries, and stores around you. The markers
+            aren't hand-entered — they're queried out of OpenStreetMap with Overpass and rendered
+            through Mapbox, so the map fills itself in wherever a member happens to be.</p>
+          <p class="spec">The importer scrapes an existing Goodreads account, so a member arrives
+            with their shelves, ratings, and reading history already in the app instead of starting
+            from an empty profile.</p>
+          <!-- slot: book-nook — swap this whole <p> for <p class="voice">your words</p> -->
+          <p class="draft" data-slot="book-nook">
+            <span class="draft-tag">your words</span>
+            What you'd want someone to take away from this one — the map especially, since it's the
+            part you put the time into.
+          </p>
+        </div>
+        <div class="work-visual stack-visual">
+          <!-- media slot 1 of 3 — the map, first on purpose -->
+          <figure class="media-slot media-slot-video" data-media="book-nook-map">
+            <div class="slot-frame" style="aspect-ratio:16/9">
+              <span class="slot-tag">Video · first</span>
+              <span class="slot-what">The map: pan it, markers resolving in from Overpass</span>
+              <span class="slot-how">drop in as assets/video/book-nook-map.mp4</span>
+            </div>
+          </figure>
+          <!-- media slot 2 of 3 — the Goodreads import -->
+          <figure class="media-slot" data-media="book-nook-import">
+            <div class="slot-frame" style="aspect-ratio:16/10">
+              <span class="slot-tag">Capture · second</span>
+              <span class="slot-what">A real Goodreads account coming in — shelves populated</span>
+              <span class="slot-how">drop in as assets/img/portfolio/book-nook-import.webp</span>
+            </div>
+          </figure>
+          <!-- media slot 3 of 3 — the app itself -->
+          <figure class="media-slot" data-media="book-nook-ui">
+            <div class="slot-frame" style="aspect-ratio:16/10">
+              <span class="slot-tag">Capture · third</span>
+              <span class="slot-what">The app in ordinary use — a club, a shelf, a discussion</span>
+              <span class="slot-how">drop in as assets/img/portfolio/book-nook-ui.webp</span>
+            </div>
+          </figure>
+        </div>
+      </article>
+
+      <!-- 05 ——— Ready Player Zero —————————————————————————————— -->
+      <article class="work" id="rpz" data-rail="Ready Player Zero">
+        <div class="work-copy">
+          <p class="num" aria-hidden="true">05</p>
           <h2>Ready<br>Player Zero</h2>
           <p class="meta">Node · SQLite · nginx · ran it live</p>
           <p class="spec">The platform for a capture-the-flag event I built and then ran: team
             registration, flag validation, a live scoreboard, and an admin panel for moving the gates
             mid-event. Hands-on challenges lived in a separate Ubuntu container reachable only over
             SSH — no internet, one CPU, half a gig of RAM.</p>
-          <!-- slot: rpz — how the event actually went, and what he'd change about running it.
-               Drops in as <p class="voice">…</p> right here. -->
+          <!-- slot: rpz — swap this whole <p> for <p class="voice">your words</p> -->
+          <p class="draft" data-slot="rpz">
+            <span class="draft-tag">your words</span>
+            How the event actually went, and what you'd change about running it.
+          </p>
           <p class="note">The project's own UI preview · private repository</p>
         </div>
         <div class="work-visual stack-visual">
@@ -214,17 +307,20 @@
         </div>
       </article>
 
-      <!-- 05 ——— CTF-Tools —————————————————————————————————————— -->
-      <article class="work" id="ctf-tools" data-rail="CTF-Tools">
+      <!-- 06 ——— CTF-Tools —————————————————————————————————————— -->
+      <article class="work reverse" id="ctf-tools" data-rail="CTF-Tools">
         <div class="work-copy">
-          <p class="num" aria-hidden="true">05</p>
+          <p class="num" aria-hidden="true">06</p>
           <h2>CTF-Tools</h2>
           <p class="meta">Python</p>
           <p class="spec">Scrapes structured sources — Wikipedia tables, Goodreads lists — into a
             wordlist shaped like the thing being attacked, with case and leetspeak variants layered on.
             Written mid-round during an NCL password-cracking event.</p>
-          <!-- slot: ctf-tools — the round this came out of, and whether it worked.
-               Drops in as <p class="voice">…</p> right here. -->
+          <!-- slot: ctf-tools — swap this whole <p> for <p class="voice">your words</p> -->
+          <p class="draft" data-slot="ctf-tools">
+            <span class="draft-tag">your words</span>
+            The round this came out of, and whether it worked.
+          </p>
           <a class="link" href="https://github.com/Dysous/CTF-Tools" target="_blank" rel="noopener">Source ↗</a>
         </div>
         <div class="work-visual">
@@ -235,10 +331,10 @@
         </div>
       </article>
 
-      <!-- 06 ——— Fannie Mae ————————————————————————————————————— -->
+      <!-- 07 ——— Fannie Mae ————————————————————————————————————— -->
       <section class="worked" id="fannie" data-rail="Firewall tooling" aria-labelledby="fannie-title">
         <div class="worked-head">
-          <p class="num" aria-hidden="true">06</p>
+          <p class="num" aria-hidden="true">07</p>
           <h2 id="fannie-title">Firewall tooling</h2>
           <p class="meta">Python · written at Fannie Mae</p>
           <p class="note">Internal tooling — the code and the consoles stay at Fannie Mae, so there is nothing here I can show you</p>
@@ -261,33 +357,52 @@
         </div>
       </section>
 
-      <!-- 07 ——— smaller work ——————————————————————————————————— -->
+      <!-- 08 ——— smaller work ——————————————————————————————————— -->
       <section class="grid-block" id="smaller" data-rail="Smaller work" aria-label="Smaller work">
         <article>
-          <p class="meta">07 · Self-hosted</p>
+          <p class="meta">08 · Self-hosted · Helm</p>
           <h3>Media stack</h3>
           <p class="spec">A request-to-playback pipeline running at home: intake, automated
             organisation, and playback across the devices in the house.</p>
+          <p class="spec">Roughly twenty containers, which is twenty things to wire up by hand —
+            so the whole stack is a Helm chart instead. One values file brings the lot up, and
+            that chart is the part worth showing; the containers themselves aren't a picture.</p>
+          <!-- Written from Noah's note, not from the chart. Confirm or correct the
+               Helm paragraph above, then delete this box. -->
+          <p class="draft confirm" data-slot="helm">
+            <span class="draft-tag">check this</span>
+            I wrote the Helm paragraph from your one-line note. Tell me what the chart actually
+            does — k3s or full k8s, what's templated, whether it's public — and I'll make it true.
+          </p>
         </article>
         <article>
-          <p class="meta">08 · Bash</p>
+          <p class="meta">09 · Bash</p>
           <h3>Mini FTP server</h3>
           <p class="spec">A file-sharing server in Bash, written for a hands-on workshop I ran for
             Cyber at Baylor.</p>
           <p class="links"><a href="https://github.com/Dysous/MiniFTPServer-BasicBashScript" target="_blank" rel="noopener">Source ↗</a></p>
         </article>
         <article>
-          <p class="meta">09 · Simulations</p>
+          <p class="meta">10 · Simulations</p>
           <h3>Tiger Game &amp; Falling Balls</h3>
           <p class="spec">An asymmetric board game solved with algorithmic strategy, and a small
             physics playground for gravity, collisions, and forces.</p>
           <p class="links"><a href="https://github.com/Dysous/NoahNaiveNights" target="_blank" rel="noopener">Tiger Game ↗</a><a href="https://github.com/Dysous/Falling-Balls" target="_blank" rel="noopener">Falling Balls ↗</a></p>
         </article>
         <article>
-          <p class="meta">10 · Firmware</p>
+          <p class="meta">11 · Firmware</p>
           <h3>Hardware I've opened</h3>
           <p class="spec">Bootloader exploits, custom payloads, and replacement firmware on things I
             own — a Switch, a Kindle, assorted Android hardware.</p>
+          <!-- media slot — Noah's own photographs of the two devices. The Kindle
+               wants its printed stand first; this slot waits for both. -->
+          <figure class="media-slot" data-media="modded-hardware">
+            <div class="slot-frame" style="aspect-ratio:4/3">
+              <span class="slot-tag">Your photos</span>
+              <span class="slot-what">The modded Switch and the Kindle, shot by you</span>
+              <span class="slot-how">drop in as assets/img/portfolio/modded-switch.webp<br>and modded-kindle.webp</span>
+            </div>
+          </figure>
         </article>
       </section>
 
@@ -296,8 +411,8 @@
 
         <article class="evidence">
           <div>
-            <p class="meta">National Cyber League · Spring 2026</p>
-            <h2>Individual game</h2>
+            <h2>National Cyber League</h2>
+            <p class="sub">Individual game · Spring 2026</p>
             <p class="spec">7,010 competitors, nine skill domains, one weekend.</p>
             <a class="link" href="https://cyberskyline.com/report/R79XH9WWFTFU" target="_blank" rel="noopener">Scouting report ↗</a>
           </div>
@@ -320,24 +435,27 @@
             <figcaption>The team, and the board behind us — every service still answering. Photo from <a href="https://www.instagram.com/cyberatbaylor/p/DU1vn_xjgQZ/" target="_blank" rel="noopener">Cyber at Baylor ↗</a></figcaption>
           </figure>
           <div class="ccdc-copy">
-            <p class="meta">CCDC Southwest · 2026</p>
-            <h2>Regional qualifier</h2>
+            <h2>CCDC Southwest</h2>
+            <p class="sub">Regional qualifier · 2026</p>
             <p class="spec">Eight hours keeping a small-business network alive while a red team takes
               it apart, with business injects landing the whole time. We qualified.</p>
-            <!-- slot: ccdc — what that day was actually like, in his voice.
-                 Drops in as <p class="voice">…</p> right here. -->
+            <!-- slot: ccdc — swap this whole <p> for <p class="voice">your words</p> -->
+            <p class="draft" data-slot="ccdc">
+              <span class="draft-tag">your words</span>
+              What that day was actually like, in your voice.
+            </p>
           </div>
         </article>
 
         <div class="comp-grid">
           <article>
-            <p class="meta">NCL Fall 2024</p>
-            <h3>Team captain</h3>
+            <h3>National Cyber League</h3>
+            <p class="sub">Team game, as captain · Fall 2024</p>
             <p class="spec">Top 50 of 4,500+ teams.</p>
           </article>
           <article>
-            <p class="meta">Hivestorm 2024</p>
-            <h3>Defensive hardening</h3>
+            <h3>Hivestorm</h3>
+            <p class="sub">Defensive hardening · 2024</p>
             <p class="spec">39th of 413 teams, and the best Baylor placed.</p>
           </article>
         </div>

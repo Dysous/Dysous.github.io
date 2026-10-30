@@ -13,6 +13,7 @@
   var sections = [].slice.call(document.querySelectorAll("[data-rail]"));
   var ticksEl = document.getElementById("rail-ticks");
   var fillEl = document.getElementById("rail-fill");
+  var nowEl = document.getElementById("rail-now");
   var ticks = [];
 
   if (ticksEl) {
@@ -33,6 +34,81 @@
 
   var ticking = false;
   var lastY = 0;
+
+  /* ================================================================
+     Holding the reader's place.
+
+     When the Spotify playlist advances, the embed takes focus, and the
+     browser scrolls the focused iframe back into view. The deck sits at
+     the top of the page, so every track change threw the reader back to
+     the opening. We cannot reach inside a cross-origin iframe to stop
+     it, so we pin the scroll position across the change and put it back
+     — and release the pin the moment the reader does anything that
+     means they wanted to move.
+     ================================================================ */
+
+  var root = document.documentElement;
+  var trail = [];                    /* recent scroll positions, newest last */
+  var pinY = null;
+  var pinUntil = 0;
+  var pinRaf = null;
+  var pinBehavior = "";
+
+  function now() {
+    return window.performance && performance.now ? performance.now() : Date.now();
+  }
+
+  /* The jump can land either side of the playback_update that announces
+     the new track, so "where they were" cannot be read at pin time — by
+     then it may already be 0. We keep a short trail and reach back past
+     the jump for a position it cannot have touched. */
+  function record(y) {
+    var t = now();
+    trail.push({ t: t, y: y });
+    while (trail.length > 2 && trail[0].t < t - 5000) trail.shift();
+  }
+
+  function positionBefore(ms) {
+    var cut = now() - ms;
+    for (var i = trail.length - 1; i >= 0; i--) {
+      if (trail[i].t <= cut) return trail[i].y;
+    }
+    return trail.length ? trail[0].y : window.scrollY;
+  }
+
+  function pinScroll() {
+    pinY = positionBefore(600);
+    pinUntil = now() + 2000;
+    /* hold the restore un-animated for the duration, or smooth scrolling
+       turns every correction into a visible slide */
+    if (pinRaf === null) {
+      pinBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      pinRaf = requestAnimationFrame(holdPin);
+    }
+  }
+
+  /* An active hold, not a scroll listener: the scroll that throws the
+     reader may have finished before the pin was armed, and a finished
+     scroll fires no further events to react to. */
+  function holdPin() {
+    pinRaf = null;
+    if (pinY === null || now() > pinUntil) { endPin(); return; }
+    if (Math.abs(window.scrollY - pinY) > 24) window.scrollTo(0, pinY);
+    pinRaf = requestAnimationFrame(holdPin);
+  }
+
+  function endPin() {
+    pinY = null;
+    if (pinRaf !== null) { cancelAnimationFrame(pinRaf); pinRaf = null; }
+    root.style.scrollBehavior = pinBehavior;
+  }
+
+  /* any sign the reader meant to move releases the hold at once */
+  ["wheel", "touchstart", "pointerdown", "keydown"].forEach(function (ev) {
+    window.addEventListener(ev, endPin, { passive: true });
+  });
+
   function onScroll() {
     if (ticking) return;
     ticking = true;
@@ -52,12 +128,21 @@
       });
       ticks.forEach(function (t) { t.li.classList.toggle("on", t.i === active); });
 
+      /* the standing name, set vertically so it stays inside the gutter */
+      if (nowEl) {
+        var name = active >= 0 ? ticks[active].sec.getAttribute("data-rail") : "";
+        if (nowEl.textContent !== name) nowEl.textContent = name;
+        nowEl.classList.toggle("on", name !== "");
+      }
+
       /* top chrome gets out of the way going down, returns going up */
       var y = window.scrollY;
       if (Math.abs(y - lastY) > 6) {
         document.body.classList.toggle("chrome-away", y > lastY && y > 240);
         lastY = y;
       }
+
+      if (pinY === null) record(y);
 
       updateChip();
     });
@@ -106,13 +191,19 @@
 
   var PLAYLIST = "https://open.spotify.com/playlist/6o7tZiunCJpBw9pEAnXwrq";
 
-  var deck = { ctrl: null, iframe: null, side: "A", playing: false, armed: false };
+  var deck = { ctrl: null, iframe: null, side: "A", playing: false, armed: false,
+               uri: null, track: "" };
 
   var btn = document.getElementById("soundtrack");
   var scene = document.querySelector(".listening-scene");
-  var label = document.getElementById("record-label");
+  var recordLabel = document.getElementById("record-label");
+  var recordSide = document.getElementById("record-side");
+  var recordArt = document.getElementById("record-art");
+  var sleevesEl = document.getElementById("sleeves");
   var chip = document.getElementById("now-playing");
-  var chipLabel = document.getElementById("now-playing-label");
+  var chipSide = document.getElementById("now-playing-side");
+  var chipTrack = document.getElementById("now-playing-track");
+  var fine = document.getElementById("deck-fine");
   var opening = document.querySelector(".open");
   var mount = document.getElementById("deck-player");
 
@@ -152,12 +243,75 @@
   }
 
   /* the chip only exists once the deck is running and the deck itself
-     has scrolled away — it is the deck following you down the page */
+     has scrolled away — it is the deck following you down the page.
+     "Side A" alone told you nothing, so it carries the track too. */
   function updateChip() {
     if (!chip) return;
     var gone = opening ? opening.getBoundingClientRect().bottom < 60 : false;
     chip.hidden = !(deck.playing && gone);
-    if (chipLabel) chipLabel.textContent = "Side " + deck.side;
+    if (chipSide) chipSide.textContent = "Side " + deck.side;
+    if (chipTrack) {
+      chipTrack.textContent = deck.track;
+      chipTrack.hidden = deck.track === "";
+    }
+    chip.setAttribute("aria-label", deck.track ? "Pause " + deck.track : "Pause the deck");
+  }
+
+  /* ----------------------------------------------------------------
+     Naming what is playing.
+
+     playback_update carries the URI of the current track but not its
+     name or its cover. oEmbed is the one public endpoint that turns a
+     URI into both without an API key, so the chip, the record label,
+     and the shelf all hang off a single lookup per track — cached,
+     because a playlist comes back round.
+     ---------------------------------------------------------------- */
+
+  var described = Object.create(null);
+  var filed = [];
+
+  function describe(uri) {
+    var m = String(uri || "").match(/track[:/]([A-Za-z0-9]+)/);
+    if (!m) return;
+    var id = m[1];
+    if (described[id]) { applyTrack(described[id]); return; }
+    if (!window.fetch) return;
+    fetch("https://open.spotify.com/oembed?url=https://open.spotify.com/track/" + id)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.title) return;
+        described[id] = { title: d.title, art: d.thumbnail_url || "" };
+        applyTrack(described[id]);
+      })
+      .catch(function () { /* the deck plays fine without a name on it */ });
+  }
+
+  function applyTrack(info) {
+    deck.track = info.title;
+    if (recordArt && info.art) {
+      recordArt.src = info.art;
+      recordArt.hidden = false;
+      if (recordLabel) recordLabel.classList.add("has-art");
+    }
+    fileSleeve(info.art);
+    updateChip();
+  }
+
+  /* The shelf fills with the covers of records that have actually been
+     played, newest propped at the front, four deep. */
+  function fileSleeve(art) {
+    if (!sleevesEl || !art || filed[0] === art) return;
+    filed = [art].concat(filed.filter(function (a) { return a !== art; })).slice(0, 4);
+    sleevesEl.innerHTML = "";
+    filed.slice().reverse().forEach(function (src) {
+      var li = document.createElement("li");
+      var img = document.createElement("img");
+      img.src = src;
+      img.alt = "";
+      img.loading = "lazy";
+      li.appendChild(img);
+      sleevesEl.appendChild(li);
+    });
   }
 
   /* Plain embed: Spotify's own controls, used when the iframe API is
@@ -176,6 +330,7 @@
     mount.appendChild(f);
     deck.iframe = f;
     mount.hidden = false;
+    if (fine) fine.hidden = false;
     if (btn) btn.hidden = true;      /* Spotify's transport takes over */
     if (scene) scene.classList.add("has-player");
   }
@@ -187,6 +342,7 @@
     var host = document.createElement("div");
     mount.appendChild(host);
     mount.hidden = false;
+    if (fine) fine.hidden = false;
     if (scene) scene.classList.add("has-player");
 
     var settled = false;
@@ -204,7 +360,14 @@
         deck.ctrl = ctrl;
         deck.iframe = true;
         ctrl.addListener("playback_update", function (e) {
-          if (e && e.data) setPlaying(!e.data.isPaused);
+          if (!e || !e.data) return;
+          setPlaying(!e.data.isPaused);
+          var uri = e.data.playingURI;
+          if (uri && uri !== deck.uri) {
+            deck.uri = uri;
+            pinScroll();        /* the track is changing — hold their place */
+            describe(uri);
+          }
         });
         if (deck.armed) ctrl.play();
       });
@@ -351,7 +514,7 @@
 
   function flipRecord() {
     deck.side = deck.side === "A" ? "B" : "A";
-    if (label) label.textContent = "SIDE " + deck.side;
+    if (recordSide) recordSide.textContent = "Side " + deck.side;
     /* visual flip always; it only starts the player if there is one */
     if (scene) scene.classList.add("flipped");
     if (source && !deck.playing) toggleDeck();
