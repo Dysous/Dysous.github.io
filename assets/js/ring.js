@@ -9,7 +9,7 @@
 
   var canvas = stage.querySelector("canvas");
   var slider = document.getElementById("ring-explode");
-  var legend = stage.querySelector(".ring-legend");
+  var legend = document.querySelector("#ring .ring-legend") || stage.querySelector(".ring-legend");
   var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   var gl = null;
@@ -227,17 +227,25 @@
 
   /* raymarching is fill-rate bound, so cap the buffer rather than the ratio.
      quality backs off on its own if frames come in slow. */
-  var MAX_PIXELS = 320000;
+  var MAX_PIXELS = 900000;
   var MIN_PIXELS = 46000;
 
   /* start cheap on every device and climb only if the GPU is keeping up —
      a first frame that is too expensive can cost the whole context */
-  var budget = 90000;
+  var budget = 160000;
+
+  /* while it is moving the buffer is capped for frame rate; once it settles
+     one full-resolution frame is drawn, which is what kills the pixelation.
+     a single expensive still is fine — nothing is waiting on it. */
+  var refining = false;
+  var refineTimer = null;
 
   function resize() {
     var rect = canvas.getBoundingClientRect();
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    var scale = Math.min(1, Math.sqrt(budget / Math.max(1, rect.width * rect.height * dpr * dpr)));
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var scale = refining
+      ? 1
+      : Math.min(1, Math.sqrt(budget / Math.max(1, rect.width * rect.height * dpr * dpr)));
     var w = Math.max(1, Math.round(rect.width * dpr * scale));
     var h = Math.max(1, Math.round(rect.height * dpr * scale));
     if (canvas.width !== w || canvas.height !== h) {
@@ -264,6 +272,8 @@
 
     needsDraw = false;
 
+    if (refining) { refining = false; return; }
+
     if (cost > 45) {
       /* back off before the driver decides to kill the context */
       if (budget > MIN_PIXELS) {
@@ -275,7 +285,7 @@
         spinning = false;
         if (spinBtn) {
           spinBtn.setAttribute("aria-pressed", "false");
-          spinBtn.textContent = "Resume rotation";
+          spinBtn.textContent = "Resume";
         }
       }
     } else {
@@ -303,8 +313,21 @@
       needsDraw = true;
     }
 
-    if (needsDraw) draw();
+    if (needsDraw) {
+      draw();
+      scheduleRefine();
+    }
     requestAnimationFrame(frame);
+  }
+
+  function scheduleRefine() {
+    clearTimeout(refineTimer);
+    refineTimer = setTimeout(function () {
+      if (!visible || dragging || spinning) return;
+      if (Math.abs(explodeTarget - explode) > 0.001) return;
+      refining = true;
+      draw();
+    }, 220);
   }
 
   function kick() {
@@ -367,11 +390,11 @@
   var spinBtn = document.getElementById("ring-spin");
   if (spinBtn) {
     spinBtn.setAttribute("aria-pressed", String(spinning));
-    spinBtn.textContent = spinning ? "Pause rotation" : "Resume rotation";
+    spinBtn.textContent = spinning ? "Pause" : "Resume";
     spinBtn.addEventListener("click", function () {
       spinning = !spinning;
       spinBtn.setAttribute("aria-pressed", String(spinning));
-      spinBtn.textContent = spinning ? "Pause rotation" : "Resume rotation";
+      spinBtn.textContent = spinning ? "Pause" : "Resume";
       kick();
     });
   }
