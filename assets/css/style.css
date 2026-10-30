@@ -52,10 +52,12 @@ h1,h2,h3{font-weight:500;letter-spacing:-.03em;margin:0}
 /* persistent chrome ---------------------------------------------- */
 .mark,.corner-links{transition:transform .35s cubic-bezier(.16,1,.3,1),opacity .35s}
 .chrome-away .mark,.chrome-away .corner-links{transform:translateY(-140%);opacity:0;pointer-events:none}
-.mark{position:fixed;top:22px;left:var(--gut);z-index:30;display:flex;align-items:center;gap:9px;
+/* The wordmark and links blend against whatever is behind them, which is
+   why they are text only — a difference-blended favicon comes out inverted,
+   and scoping the blend to a child isolates it inside this stacking context. */
+.mark{position:fixed;top:22px;left:var(--gut);z-index:30;
   text-decoration:none;font:10px var(--mono);letter-spacing:.14em;text-transform:uppercase;
   mix-blend-mode:difference;color:#fff}
-.mark img{border-radius:3px;mix-blend-mode:normal}
 
 .corner-links{position:fixed;top:24px;right:var(--gut);z-index:30;display:flex;gap:16px;
   font:9px var(--mono);letter-spacing:.12em;text-transform:uppercase;mix-blend-mode:difference;color:#fff}
@@ -335,7 +337,7 @@ footer a:hover{opacity:1;text-decoration:underline}
 @media(max-width:900px){
   :root{--rail:0px}
   .rail{display:none}
-  .mark span{display:none}
+  .mark{font-size:9px}
   .corner-links{gap:12px}
   .open{grid-template-columns:1fr;min-height:0}
   .open-copy{min-height:88svh;padding:clamp(90px,16vh,150px) var(--gut) 50px}
