@@ -35,18 +35,31 @@
     "mat3 rotY(float a){ float s=sin(a), c=cos(a); return mat3(c,0.0,-s, 0.0,1.0,0.0, s,0.0,c); }",
     "mat3 rotX(float a){ float s=sin(a), c=cos(a); return mat3(1.0,0.0,0.0, 0.0,c,s, 0.0,-s,c); }",
 
-    /* annulus in the XZ plane, extruded along Y */
-    "float sdBand(vec3 p, float ro, float ri, float h, float rad){",
-    "  float d2 = length(p.xz);",
-    "  float dr = max(d2 - ro, ri - d2);",
-    "  float dy = abs(p.y) - h;",
-    "  vec2 w = vec2(dr, dy);",
-    "  return min(max(dr, dy), 0.0) + length(max(w, 0.0)) - rad;",
+    /* Everything except the sensor module is a surface of revolution, so the
+       components are authored as 2D cross-sections in (radius, height) and
+       revolved. That is exact, cheap, and it is what lets the shell carry a
+       real domed profile and a chamfer instead of reading as a flat tube. */
+    "vec2 revolve(vec3 p){ return vec2(length(p.xz), p.y); }",
+
+    /* rounded box in 2D with per-corner radii: (outer-top, outer-bottom,
+       inner-top, inner-bottom) relative to the profile centre */
+    "float sdRB2(vec2 p, vec2 b, vec4 r){",
+    "  r.xy = (p.x > 0.0) ? r.xy : r.zw;",
+    "  r.x  = (p.y > 0.0) ? r.x  : r.y;",
+    "  vec2 q = abs(p) - b + r.x;",
+    "  return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r.x;",
     "}",
 
     "float sdRoundBox(vec3 p, vec3 b, float r){",
     "  vec3 q = abs(p) - b;",
     "  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0) - r;",
+    "}",
+
+    /* an ellipsoid, used for the sensor dome and the LED lenses */
+    "float sdEllipsoid(vec3 p, vec3 r){",
+    "  float k0 = length(p / r);",
+    "  float k1 = length(p / (r * r));",
+    "  return k0 * (k0 - 1.0) / k1;",
     "}",
 
     "vec2 opU(vec2 a, vec2 b){ return a.x < b.x ? a : b; }",
@@ -56,25 +69,57 @@
     "  float t = uExplode;",
     "  vec2 res = vec2(1e9, 0.0);",
 
-    "  vec3 ps = p - vec3(0.0, 0.62 * t, 0.0);",
-    "  res = opU(res, vec2(sdBand(ps, 0.985, 0.900, 0.155, 0.015), 1.0));",
+    /* --- outer shell: domed outside, chamfered edges, one fine groove --- */
+    "  vec3 ps = p - vec3(0.0, 0.52 * t, 0.0);",
+    "  vec2 qs = revolve(ps) - vec2(0.9425, 0.0);",
+    "  float shell = sdRB2(qs, vec2(0.0425, 0.1550), vec4(0.0400, 0.0400, 0.0090, 0.0090));",
+    /*   a shallow groove turned into the outer face, 0.1 mm of visual interest */
+    "  float groove = length(qs - vec2(0.0455, 0.0)) - 0.0115;",
+    "  shell = max(shell, -groove);",
+    "  res = opU(res, vec2(shell, 1.0));",
 
-    "  vec3 pb = p - vec3(0.0, -0.18 * t, 0.0);",
-    "  float db = sdBand(pb, 0.893, 0.847, 0.100, 0.012);",
-    "  db = max(db, 0.02 - pb.x);",
-    "  res = opU(res, vec2(db, 2.0));",
+    /* --- curved battery: a partial arc, so you can see it is not a full ring --- */
+    "  vec3 pb = p - vec3(0.0, -0.12 * t, 0.0);",
+    "  vec2 qb = revolve(pb) - vec2(0.8700, 0.0);",
+    "  float batt = sdRB2(qb, vec2(0.0230, 0.1000), vec4(0.0110, 0.0110, 0.0110, 0.0110));",
+    "  batt = max(batt, 0.02 - pb.x);",
+    "  res = opU(res, vec2(batt, 2.0));",
 
-    "  vec3 pf = p - vec3(0.0, -0.72 * t, 0.0);",
-    "  res = opU(res, vec2(sdBand(pf, 0.842, 0.822, 0.055, 0.006), 3.0));",
+    /* --- flex PCB: thin, green, wraps most of the way round --- */
+    "  vec3 pf = p - vec3(0.0, -0.58 * t, 0.0);",
+    "  vec2 qf = revolve(pf) - vec2(0.8320, 0.0);",
+    "  float pcb = sdRB2(qf, vec2(0.0100, 0.0550), vec4(0.0040, 0.0040, 0.0040, 0.0040));",
+    "  res = opU(res, vec2(pcb, 3.0));",
 
-    "  vec3 pm = pf - vec3(-0.868, 0.0, 0.0);",
-    "  res = opU(res, vec2(sdRoundBox(pm, vec3(0.035, 0.072, 0.130), 0.018), 4.0));",
-    "  float dl = min(length(pm - vec3(0.038, 0.0,  0.055)) - 0.021,",
-    "                 length(pm - vec3(0.038, 0.0, -0.055)) - 0.021);",
-    "  res = opU(res, vec2(dl, 5.0));",
+    /* --- the PPG sensor module, the one part that is not revolved --- */
+    "  vec3 pm = pf - vec3(-0.8280, 0.0, 0.0);",
+    /*   housing: a lozenge sitting against the inside of the flex board */
+    "  float hous = sdRoundBox(pm - vec3(-0.0330, 0.0, 0.0), vec3(0.0290, 0.0880, 0.1520), 0.0200);",
+    "  res = opU(res, vec2(hous, 4.0));",
+    /*   the glossy window over the optics */
+    "  float win = sdEllipsoid(pm - vec3(-0.0620, 0.0, 0.0), vec3(0.0300, 0.0680, 0.1280));",
+    "  res = opU(res, vec2(win, 7.0));",
+    /*   two green LEDs and, between them, the photodiode */
+    "  float led = min(sdEllipsoid(pm - vec3(-0.0760, 0.0,  0.0680), vec3(0.0170, 0.0310, 0.0310)),",
+    "                  sdEllipsoid(pm - vec3(-0.0760, 0.0, -0.0680), vec3(0.0170, 0.0310, 0.0310)));",
+    "  res = opU(res, vec2(led, 5.0));",
+    "  float diode = sdEllipsoid(pm - vec3(-0.0760, 0.0, 0.0), vec3(0.0160, 0.0270, 0.0270));",
+    "  res = opU(res, vec2(diode, 8.0));",
 
-    "  vec3 pl = p - vec3(0.0, -1.30 * t, 0.0);",
-    "  res = opU(res, vec2(sdBand(pl, 0.818, 0.755, 0.145, 0.010), 6.0));",
+    /* --- inner resin liner, with a window over the optics --- */
+    "  vec3 pl = p - vec3(0.0, -1.05 * t, 0.0);",
+    "  vec2 ql = revolve(pl) - vec2(0.7865, 0.0);",
+    "  float liner = sdRB2(ql, vec2(0.0315, 0.1450), vec4(0.0090, 0.0090, 0.0260, 0.0260));",
+    /*   the sensor shines through the liner rather than hiding behind it, so
+         the module is still visible with the ring assembled */
+    "  float lwin = sdEllipsoid(pl - vec3(-0.7900, 0.0, 0.0), vec3(0.0700, 0.0780, 0.1420));",
+    "  liner = max(liner, -lwin);",
+    "  res = opU(res, vec2(liner, 6.0));",
+
+    /* --- two gold charging pads, proud of the inner face --- */
+    "  float pad = min(sdRoundBox(pl - vec3(0.0, 0.0,  0.7560), vec3(0.0620, 0.0360, 0.0150), 0.0080),",
+    "                  sdRoundBox(pl - vec3(0.0, 0.0, -0.7560), vec3(0.0620, 0.0360, 0.0150), 0.0080));",
+    "  res = opU(res, vec2(pad, 9.0));",
 
     "  return res;",
     "}",
@@ -90,8 +135,8 @@
 
     /* the whole assembly lives inside this sphere; rays that miss it never march */
     "bool boundsHit(vec3 ro, vec3 rd, out float t0, out float t1){",
-    "  float spread = 0.96 * uExplode + 0.17;",
-    "  vec3  c = vec3(0.0, -0.34 * uExplode, 0.0);",
+    "  float spread = 0.80 * uExplode + 0.17;",
+    "  vec3  c = vec3(0.0, -0.28 * uExplode, 0.0);",
     "  float r = sqrt(1.0 + spread * spread) + 0.04;",
     "  vec3  oc = ro - c;",
     "  float b = dot(oc, rd);",
@@ -103,15 +148,19 @@
     "  return t1 > 0.0;",
     "}",
 
-    "void matProps(float id, out vec3 albedo, out float spec, out float rough, out vec3 emit){",
-    "  emit = vec3(0.0);",
-    "  if (id < 1.5)      { albedo = vec3(0.055, 0.058, 0.054); spec = 0.95; rough = 0.16; }",
-    "  else if (id < 2.5) { albedo = vec3(0.420, 0.250, 0.130); spec = 0.55; rough = 0.42; }",
-    "  else if (id < 3.5) { albedo = vec3(0.090, 0.190, 0.130); spec = 0.35; rough = 0.55; }",
-    "  else if (id < 4.5) { albedo = vec3(0.085, 0.090, 0.080); spec = 0.30; rough = 0.60; }",
-    "  else if (id < 5.5) { albedo = vec3(0.300, 0.420, 0.220); spec = 0.40; rough = 0.45;",
-    "                       emit = vec3(0.420, 0.620, 0.300); }",
-    "  else               { albedo = vec3(0.135, 0.140, 0.128); spec = 0.22; rough = 0.70; }",
+    "void matProps(float id, out vec3 albedo, out float spec, out float rough,",
+    "               out float metal, out vec3 emit){",
+    "  emit = vec3(0.0); metal = 0.0;",
+    "  if (id < 1.5)      { albedo = vec3(0.048, 0.051, 0.048); spec = 1.00; rough = 0.13; metal = 0.85; }",  /* anodised shell */
+    "  else if (id < 2.5) { albedo = vec3(0.455, 0.270, 0.140); spec = 0.70; rough = 0.34; metal = 0.60; }",  /* battery foil */
+    "  else if (id < 3.5) { albedo = vec3(0.075, 0.185, 0.120); spec = 0.40; rough = 0.50; }",                /* solder mask */
+    "  else if (id < 4.5) { albedo = vec3(0.062, 0.066, 0.060); spec = 0.35; rough = 0.58; }",                /* sensor housing */
+    "  else if (id < 5.5) { albedo = vec3(0.250, 0.420, 0.210); spec = 0.75; rough = 0.14;",                  /* PPG LEDs */
+    "                       emit = vec3(0.360, 1.080, 0.420); }",
+    "  else if (id < 6.5) { albedo = vec3(0.082, 0.085, 0.079); spec = 0.26; rough = 0.62; }",                /* resin liner */
+    "  else if (id < 7.5) { albedo = vec3(0.020, 0.024, 0.022); spec = 1.00; rough = 0.05; }",                /* sensor window */
+    "  else if (id < 8.5) { albedo = vec3(0.012, 0.013, 0.016); spec = 0.90; rough = 0.09; }",                /* photodiode */
+    "  else               { albedo = vec3(0.620, 0.470, 0.185); spec = 1.00; rough = 0.18; metal = 0.95; }",  /* gold pads */
     "}",
 
     /* three-tap ambient occlusion instead of a shadow march */
@@ -130,8 +179,8 @@
     "                clamp(length(uv) * 1.15, 0.0, 1.0));",
 
     /* dolly out and re-centre as the stack opens, so it always fits the frame */
-    "  vec3  target = vec3(0.0, -0.34 * uExplode, 0.0);",
-    "  float dist   = 3.95 + 2.00 * uExplode;",
+    "  vec3  target = vec3(0.0, -0.28 * uExplode, 0.0);",
+    "  float dist   = 3.95 + 1.55 * uExplode;",
 
     "  mat3 rot = rotY(uYaw) * rotX(uPitch);",
     "  vec3 ro = target + rot * vec3(0.0, 0.0, dist);",
@@ -159,11 +208,12 @@
     "    vec3 n = calcNormal(p);",
     "    vec3 v = -rd;",
 
-    "    vec3 albedo; float spec; float rough; vec3 emit;",
-    "    matProps(id, albedo, spec, rough, emit);",
+    "    vec3 albedo; float spec; float rough; float metal; vec3 emit;",
+    "    matProps(id, albedo, spec, rough, metal, emit);",
 
     "    vec3 key  = normalize(vec3(0.55, 0.95, 0.60));",
     "    vec3 fill = normalize(vec3(-0.70, 0.25, 0.35));",
+    "    vec3 rimL = normalize(vec3(0.10, -0.35, -0.90));",
 
     "    float ao = occlusion(p, n);",
     "    float dif  = max(dot(n, key), 0.0) * ao;",
@@ -171,10 +221,30 @@
     "    float amb  = (0.18 + 0.22 * (0.5 + 0.5 * n.y)) * ao;",
     "    float rim  = pow(1.0 - max(dot(n, v), 0.0), 3.2) * 0.45;",
 
-    "    vec3 hv = normalize(key + v);",
-    "    float sp = pow(max(dot(n, hv), 0.0), mix(120.0, 10.0, rough)) * spec * ao;",
+    /* metals tint their own highlight and have no diffuse of their own, which
+       is the difference between the shell reading as anodised and as plastic */
+    "    vec3 f0 = mix(vec3(0.045), albedo, metal);",
+    "    float fres = pow(1.0 - max(dot(n, v), 0.0), 5.0);",
+    "    vec3 F = f0 + (vec3(1.0) - f0) * fres;",
 
-    "    col = albedo * (dif * 1.05 + dif2 + amb) + vec3(sp) + albedo * rim * 2.2 + emit * 0.55;",
+    "    float shin = mix(180.0, 9.0, rough);",
+    "    vec3 hv  = normalize(key + v);",
+    "    vec3 hv2 = normalize(fill + v);",
+    "    vec3 hv3 = normalize(rimL + v);",
+    "    vec3 sp = F * spec * ao * (",
+    "        pow(max(dot(n, hv),  0.0), shin) * 1.00 +",
+    "        pow(max(dot(n, hv2), 0.0), shin) * 0.35 +",
+    "        pow(max(dot(n, hv3), 0.0), shin) * 0.55);",
+
+    /* a crude vertical gradient standing in for an environment, so curved
+       metal picks up a moving highlight as it turns */
+    "    vec3 r = reflect(-v, n);",
+    "    vec3 env = mix(vec3(0.020, 0.023, 0.020), vec3(0.150, 0.158, 0.148), clamp(r.y * 0.5 + 0.5, 0.0, 1.0));",
+    "    env += vec3(0.30, 0.33, 0.28) * pow(max(dot(r, key), 0.0), 14.0);",
+
+    "    vec3 diffuse = albedo * (1.0 - metal) * (dif * 1.05 + dif2 + amb);",
+    "    col = diffuse + sp + env * F * mix(0.35, 1.25, metal) * ao",
+    "        + albedo * rim * 2.2 + emit * 0.85;",
     "    col = mix(col, bg, clamp((t - 2.6) / 5.0, 0.0, 0.55));",
     "  }",
 

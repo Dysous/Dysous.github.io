@@ -250,7 +250,8 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
 .ring-legend{list-style:none;margin:14px 0 0;padding:0;font:10px var(--mono);letter-spacing:.07em;text-transform:uppercase}
 .ring-legend li{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
 .sw{width:12px;height:12px;border-radius:2px;flex:none;border:1px solid rgba(0,0,0,.25)}
-.sw-shell{background:#242621}.sw-batt{background:#8a5a33}.sw-pcb{background:#24402f}.sw-liner{background:#4a4d45}
+.sw-shell{background:#242621}.sw-batt{background:#8a5a33}.sw-pcb{background:#24402f}
+.sw-led{background:#5c9a46}.sw-gold{background:#b08a3c}.sw-liner{background:#3a3d37}
 .ring-stage{position:relative;margin:0;background:var(--dark-2);display:flex;flex-direction:column}
 .ring-stage canvas{display:block;width:100%;height:clamp(360px,52vh,600px);touch-action:pan-y;cursor:grab}
 .ring-stage.dragging canvas{cursor:grabbing}
