@@ -192,14 +192,15 @@
   var PLAYLIST = "https://open.spotify.com/playlist/6o7tZiunCJpBw9pEAnXwrq";
 
   var deck = { ctrl: null, iframe: null, side: "A", playing: false, armed: false,
-               uri: null, track: "" };
+               uri: null, track: "", artist: "" };
 
   var btn = document.getElementById("soundtrack");
   var scene = document.querySelector(".listening-scene");
-  var recordLabel = document.getElementById("record-label");
+  var recordEl = document.getElementById("record");
   var recordSide = document.getElementById("record-side");
-  var recordArt = document.getElementById("record-art");
-  var sleevesEl = document.getElementById("sleeves");
+  var recordFace = document.getElementById("record-face");
+  var crateRail = document.getElementById("crate-rail");
+  var deckNow = document.getElementById("deck-now");
   var chip = document.getElementById("now-playing");
   var chipSide = document.getElementById("now-playing-side");
   var chipTrack = document.getElementById("now-playing-track");
@@ -258,60 +259,135 @@
   }
 
   /* ----------------------------------------------------------------
-     Naming what is playing.
+     The crate.
 
-     playback_update carries the URI of the current track but not its
-     name or its cover. oEmbed is the one public endpoint that turns a
-     URI into both without an API key, so the chip, the record label,
-     and the shelf all hang off a single lookup per track — cached,
-     because a playlist comes back round.
+     playlist.js carries the running order, each cover, and a colour
+     pulled out of that cover — generated at build time, because the
+     embed only announces the track it is playing and the page that
+     lists a playlist cannot be read cross-origin. That is what lets
+     the shelf be full before anyone presses play, and lets a record
+     be chosen rather than waited for.
      ---------------------------------------------------------------- */
 
+  var records = window.PLAYLIST_RECORDS || [];
+  var crateItems = [];
+
+  function buildCrate() {
+    if (!crateRail || !records.length) return;
+    records.forEach(function (rec, i) {
+      var li = document.createElement("li");
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "sleeve";
+      b.style.setProperty("--tint", rec.tint);
+
+      var img = document.createElement("img");
+      img.src = rec.art;
+      img.alt = "";
+      img.width = 300;
+      img.height = 300;
+      img.loading = "lazy";
+
+      var cap = document.createElement("span");
+      cap.className = "sleeve-cap";
+      cap.innerHTML = '<b></b><i></i>';
+      cap.querySelector("b").textContent = rec.title;
+      cap.querySelector("i").textContent = rec.artist;
+
+      b.appendChild(img);
+      b.appendChild(cap);
+      b.setAttribute("aria-label", "Play " + rec.title + " by " + rec.artist);
+      b.addEventListener("click", function () { pick(i); });
+
+      li.appendChild(b);
+      crateRail.appendChild(li);
+      crateItems.push(b);
+    });
+
+    /* something is always cued up, so the deck is never a blank disc */
+    dressRecord(records[0], false);
+  }
+
+  /* Press the cover into the disc. A picture disc, so the record on the
+     platter is the record you picked rather than the same black one
+     wearing a different sticker. */
+  function dressRecord(rec, playing) {
+    if (!rec) return;
+    if (recordFace) {
+      recordFace.src = rec.artBig || rec.art;
+      recordFace.hidden = false;
+    }
+    if (recordEl) {
+      recordEl.style.setProperty("--vinyl", rec.vinyl);
+      recordEl.style.setProperty("--tint", rec.tint);
+      recordEl.classList.add("pressed");
+    }
+    deck.track = rec.title;
+    deck.artist = rec.artist;
+    if (deckNow) deckNow.textContent = playing === false ? "" : rec.title + " — " + rec.artist;
+    markCrate(rec.id);
+    updateChip();
+  }
+
+  function markCrate(id) {
+    records.forEach(function (rec, i) {
+      if (crateItems[i]) crateItems[i].classList.toggle("on", rec.id === id);
+    });
+  }
+
+  /* Choosing a record off the shelf. The embed has to exist before it can
+     be told what to play, so a pick made before the first press of Play
+     mounts the player and is replayed once the controller arrives. */
+  var queued = null;
+
+  function pick(i) {
+    var rec = records[i];
+    if (!rec) return;
+    dressRecord(rec, true);
+    if (!source) return;
+    if (deck.ctrl) {
+      deck.ctrl.loadUri("spotify:track:" + rec.id);
+      /* loadUri only loads; the controller needs a beat before it will
+         take a play() for the track it has just been handed */
+      setTimeout(function () { if (deck.ctrl) deck.ctrl.play(); }, 350);
+    } else {
+      queued = rec;
+      deck.armed = true;
+      if (!deck.iframe) mountControlled();
+    }
+  }
+
+  /* A track can still arrive that the baked crate has never heard of — he
+     adds to the playlist more often than the crate is regenerated. oEmbed
+     turns the bare URI from playback_update into a name and a cover. */
   var described = Object.create(null);
-  var filed = [];
 
   function describe(uri) {
     var m = String(uri || "").match(/track[:/]([A-Za-z0-9]+)/);
     if (!m) return;
     var id = m[1];
+
+    for (var i = 0; i < records.length; i++) {
+      if (records[i].id === id) { dressRecord(records[i], true); return; }
+    }
+
     if (described[id]) { applyTrack(described[id]); return; }
     if (!window.fetch) return;
     fetch("https://open.spotify.com/oembed?url=https://open.spotify.com/track/" + id)
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (!d || !d.title) return;
-        described[id] = { title: d.title, art: d.thumbnail_url || "" };
+        described[id] = { id: id, title: d.title, artist: "",
+                          art: d.thumbnail_url || "", artBig: d.thumbnail_url || "",
+                          tint: "#2a2a2a", vinyl: "#141414" };
         applyTrack(described[id]);
       })
       .catch(function () { /* the deck plays fine without a name on it */ });
   }
 
   function applyTrack(info) {
-    deck.track = info.title;
-    if (recordArt && info.art) {
-      recordArt.src = info.art;
-      recordArt.hidden = false;
-      if (recordLabel) recordLabel.classList.add("has-art");
-    }
-    fileSleeve(info.art);
-    updateChip();
-  }
-
-  /* The shelf fills with the covers of records that have actually been
-     played, newest propped at the front, four deep. */
-  function fileSleeve(art) {
-    if (!sleevesEl || !art || filed[0] === art) return;
-    filed = [art].concat(filed.filter(function (a) { return a !== art; })).slice(0, 4);
-    sleevesEl.innerHTML = "";
-    filed.slice().reverse().forEach(function (src) {
-      var li = document.createElement("li");
-      var img = document.createElement("img");
-      img.src = src;
-      img.alt = "";
-      img.loading = "lazy";
-      li.appendChild(img);
-      sleevesEl.appendChild(li);
-    });
+    dressRecord(info, true);
+    if (deckNow) deckNow.textContent = info.title;
   }
 
   /* Plain embed: Spotify's own controls, used when the iframe API is
@@ -369,7 +445,15 @@
             describe(uri);
           }
         });
-        if (deck.armed) ctrl.play();
+        /* a record pulled off the shelf before the player existed */
+        if (queued) {
+          var rec = queued;
+          queued = null;
+          ctrl.loadUri("spotify:track:" + rec.id);
+          setTimeout(function () { if (deck.ctrl) deck.ctrl.play(); }, 350);
+        } else if (deck.armed) {
+          ctrl.play();
+        }
       });
     };
 
@@ -398,6 +482,8 @@
   if (btn && source) {
     btn.addEventListener("click", toggleDeck);
   }
+
+  buildCrate();
 
   if (chip) {
     chip.addEventListener("click", function () {
@@ -472,16 +558,98 @@
   /* ================================================================
      The tree recording.
 
-     Native controls, so it can be scrubbed and so the project's own
-     audio plays when the viewer asks for it. Nothing autoplays; it
-     only pauses itself once it is well off screen.
+     It starts itself when it comes into view and stops when it leaves,
+     so the project is already running by the time you have read the
+     paragraph next to it. Muted, because no browser will autoplay
+     audio and a blocked play() would leave a dead poster frame — the
+     sound is one click away and the button says so. Native controls
+     stay on top of that, so it can still be scrubbed.
      ================================================================ */
 
   var video = document.getElementById("tree-video");
-  if (video && "IntersectionObserver" in window) {
-    new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting && !video.paused) video.pause();
-    }, { threshold: 0 }).observe(video);
+  var soundBtn = document.getElementById("tree-sound");
+
+  /* Every capture on the page plays on sight and stops when it leaves;
+     only the tree carries audio, so only the tree gets a sound button. */
+  Array.prototype.forEach.call(
+    document.querySelectorAll(".screen-capture video"),
+    function (v) {
+      /* autoplay is declared in the markup as the no-JS path; with JS the
+         observer owns it, so start from a known state */
+      v.muted = true;
+      if (!("IntersectionObserver" in window)) return;
+      new IntersectionObserver(function (entries) {
+        var on = entries[0].isIntersecting;
+        if (on && v.paused && !reduce) {
+          var p = v.play();
+          /* a rejected play is not an error worth surfacing — the poster
+             and the controls are still there */
+          if (p && p.catch) p.catch(function () {});
+        } else if (!on && !v.paused) {
+          v.pause();
+        }
+      }, { threshold: 0.25 }).observe(v);
+    }
+  );
+
+  if (video) {
+    if (soundBtn) {
+      soundBtn.addEventListener("click", function () {
+        video.muted = !video.muted;
+        if (!video.muted && video.paused) video.play().catch(function () {});
+        soundBtn.setAttribute("aria-pressed", String(!video.muted));
+        soundBtn.querySelector("i").textContent = video.muted ? "🔇" : "🔊";
+        soundBtn.querySelector("span").textContent = video.muted ? "Sound off" : "Sound on";
+      });
+      /* the native controls can unmute too; keep the button honest */
+      video.addEventListener("volumechange", function () {
+        soundBtn.setAttribute("aria-pressed", String(!video.muted));
+        soundBtn.querySelector("i").textContent = video.muted ? "🔇" : "🔊";
+        soundBtn.querySelector("span").textContent = video.muted ? "Sound off" : "Sound on";
+      });
+    }
+  }
+
+  /* ================================================================
+     The DNS monitor window.
+
+     Three full-height dashboard captures stacked ran for a screen and
+     a half. The monitor is a tabbed app, so they live in one window
+     and you switch between them instead of scrolling past them.
+     ================================================================ */
+
+  var dnsWindow = document.getElementById("dns-window");
+  if (dnsWindow) {
+    var dnsTabs = [].slice.call(dnsWindow.querySelectorAll('[role="tab"]'));
+    var dnsCap = document.getElementById("dns-cap");
+    var dnsCaptions = [
+      "Ordinary traffic · the window scrolls, the tabs are the app’s own",
+      "Under a simulated tunneling run · 432 unique subdomains on one parent",
+      "The live DNS request stream"
+    ];
+    var dnsScreen = dnsWindow.querySelector(".app-screen");
+
+    dnsTabs.forEach(function (tab, i) {
+      tab.addEventListener("click", function () { showDns(i); });
+      tab.addEventListener("keydown", function (e) {
+        var next = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : -1;
+        if (next < 0 || next >= dnsTabs.length) return;
+        e.preventDefault();
+        dnsTabs[next].focus();
+        showDns(next);
+      });
+    });
+
+    function showDns(active) {
+      dnsTabs.forEach(function (tab, i) {
+        tab.setAttribute("aria-selected", String(i === active));
+        var panel = document.getElementById(tab.getAttribute("aria-controls"));
+        if (panel) panel.hidden = i !== active;
+      });
+      if (dnsCap) dnsCap.textContent = dnsCaptions[active];
+      /* each view is its own page; start it at the top */
+      if (dnsScreen) dnsScreen.scrollTop = 0;
+    }
   }
 
   /* ================================================================

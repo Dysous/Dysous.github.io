@@ -142,21 +142,6 @@ h1,h2,h3{font-weight:500;letter-spacing:-.03em;margin:0}
 .scene-row>*{min-width:0}
 .shelf{display:flex;flex-direction:column;justify-content:flex-end}
 .spines{position:relative;display:flex;align-items:flex-end;gap:5px;height:clamp(180px,26vh,250px)}
-/* Records file themselves in here as they play: each sleeve is the real
-   cover art of a track that actually came out of the deck, fetched from
-   Spotify's oEmbed. An empty shelf means nothing has played yet — it is
-   not a shelf of invented albums. */
-.sleeves{position:absolute;left:0;right:0;bottom:0;margin:0;padding:0;list-style:none;
-  display:flex;align-items:flex-end;pointer-events:none}
-.sleeves li{width:58%;flex:none;aspect-ratio:1;margin-right:-44%;
-  border:1px solid rgba(0,0,0,.55);box-shadow:0 9px 22px rgba(0,0,0,.6);
-  transform-origin:bottom left;animation:sleeve-in .55s cubic-bezier(.16,1,.3,1) both}
-.sleeves li:last-child{margin-right:0}
-.sleeves img{display:block;width:100%;height:100%;object-fit:cover}
-@keyframes sleeve-in{
-  from{opacity:0;transform:rotate(-15deg) translateY(12px)}
-  to{opacity:1;transform:rotate(-6deg)}}
-@media (prefers-reduced-motion:reduce){.sleeves li{transform:rotate(-6deg)}}
 .spine{position:relative;flex:1;border-radius:1px 1px 0 0;background:#2a2d27;text-decoration:none;
   box-shadow:inset -3px 0 0 rgba(0,0,0,.35),inset 1px 0 0 rgba(255,255,255,.05);transition:transform .25s,background .25s}
 .spine span{position:absolute;bottom:11px;left:50%;transform:translateX(-50%) rotate(180deg);writing-mode:vertical-rl;
@@ -175,7 +160,13 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
 .platter{width:min(270px,56vw);aspect-ratio:1;margin:0 auto;border-radius:50%;display:grid;place-items:center;
   background:radial-gradient(circle,#43463e 0 96%,#2a2d27 100%);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),inset 0 0 22px rgba(0,0,0,.45)}
-.record{width:87%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+/* The record is a picture disc. The cover is pressed across the whole face
+   rather than shrunk onto a sticker in the middle, so the thing spinning on
+   the platter is visibly a different record for every track — which is the
+   point of having a deck at all. Grooves and the sheen ride on top of the
+   art; --vinyl and --tint come from the cover (see playlist.js). */
+.record{position:relative;width:87%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  --vinyl:#0a0908;--tint:#4c6654;
   background:
     radial-gradient(circle at 50% 50%,#000 0 1.5%,transparent 1.6%),
     conic-gradient(from 210deg,rgba(255,150,110,.05) 0deg,rgba(255,215,90,.03) 40deg,transparent 90deg,
@@ -183,25 +174,95 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
     repeating-radial-gradient(circle at 50% 50%,transparent 0,transparent 1.5%,rgba(255,255,255,.028) 1.6%,transparent 1.75%),
     radial-gradient(circle at 36% 28%,rgba(255,255,255,.06),transparent 46%),#0a0908;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 12px 30px rgba(0,0,0,.65)}
-/* A pressed paper label rather than a blank disc: a moss outer band, the
-   concentric print rings, a punched spindle hole. Once a track is playing
-   its real cover art replaces the paper and keeps the hole. */
-.record-label{position:relative;width:34%;aspect-ratio:1;border-radius:50%;overflow:hidden;
+/* the pressed lip: a narrow band of actual vinyl outside the printed area,
+   tinted from the cover the way coloured vinyl is */
+.record.pressed{background:
+    radial-gradient(circle at 50% 50%,var(--tint) 0 100%),var(--vinyl)}
+
+.record-face{position:absolute;inset:2.5%;width:95%;height:95%;object-fit:cover;
+  border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+.record-face[hidden]{display:none}
+
+/* grooves cut across the print — tight concentric lines, eased off at the
+   label and at the lead-in so the disc has a run-out like a real pressing */
+.record-grooves{position:absolute;inset:2.5%;border-radius:50%;pointer-events:none;
+  background:
+    repeating-radial-gradient(circle at 50% 50%,
+      rgba(0,0,0,.34) 0 1px,rgba(255,255,255,.07) 1px 2px,transparent 2px 3px);
+  -webkit-mask:radial-gradient(circle at 50% 50%,transparent 0 19%,#000 24% 92%,transparent 97%);
+  mask:radial-gradient(circle at 50% 50%,transparent 0 19%,#000 24% 92%,transparent 97%)}
+.record:not(.pressed) .record-grooves{opacity:0}
+
+/* one soft highlight lying across the disc, so it reads as a glossy
+   surface turning rather than a flat circle rotating */
+.record-sheen{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:
+    conic-gradient(from 200deg,transparent 0deg,rgba(255,255,255,.14) 24deg,transparent 58deg,
+      transparent 180deg,rgba(255,255,255,.09) 206deg,transparent 240deg);
+  mix-blend-mode:screen}
+
+/* A pressed paper label: a band in the cover's own colour, the concentric
+   print rings, a punched spindle hole. */
+.record-label{position:relative;z-index:2;width:34%;aspect-ratio:1;border-radius:50%;overflow:hidden;
   display:grid;place-items:center;text-align:center;color:#2b2822;
   background:
     radial-gradient(circle at 50% 50%,#080907 0 6.5%,transparent 7%),
     repeating-radial-gradient(circle at 50% 50%,transparent 0 14.5%,rgba(43,40,34,.17) 14.5% 15.3%,transparent 15.8%),
-    radial-gradient(circle at 50% 50%,transparent 0 61%,#4c6654 61.5% 100%),
+    radial-gradient(circle at 50% 50%,transparent 0 61%,var(--tint,#4c6654) 61.5% 100%),
     radial-gradient(circle at 42% 34%,#ded7c4,#c3bcab);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),0 0 10px rgba(0,0,0,.45)}
 .record-side{position:relative;z-index:1;transform:translateY(150%);
   font:7px var(--mono);letter-spacing:.14em;text-transform:uppercase}
-.record-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
-.record-art[hidden]{display:none}
-.record-label.has-art .record-side{display:none}
-.record-label.has-art:after{content:"";position:absolute;left:50%;top:50%;z-index:2;
-  width:13%;height:13%;transform:translate(-50%,-50%);border-radius:50%;background:#080907;
-  box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+
+/* ——— the crate ————————————————————————————————————————————
+   Full from the first paint. Every cover is the real one, pulled from the
+   playlist by tools/fetch-playlist.py — nothing here is an invented album.
+   Flip through it like a crate; clicking a sleeve puts that record on. */
+.crate{display:flex;flex-direction:column;gap:10px}
+.crate-head{margin:0;font:9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#8e9086;font-weight:400}
+/* Vertical padding is load-bearing: overflow-x:auto forces overflow-y to
+   compute as auto too, so the hover lift and the caption have to live
+   inside the scroll box or they get clipped off. */
+.crate-rail{display:flex;align-items:flex-end;gap:0;margin:0;padding:16px 0 42px;list-style:none;
+  overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;
+  scrollbar-width:thin;scrollbar-color:#45483f transparent}
+.crate-rail::-webkit-scrollbar{height:5px}
+.crate-rail::-webkit-scrollbar-track{background:rgba(255,255,255,.05)}
+.crate-rail::-webkit-scrollbar-thumb{background:#45483f}
+/* sleeves lean into each other the way records do in a crate; the overlap
+   lives on the list item, because that is the flex item — on the button
+   inside it, it squeezes the item instead and crops the cover */
+.crate-rail li{position:relative;flex:none;margin-right:-26px;scroll-snap-align:start;
+  transition:margin-right .28s cubic-bezier(.16,1,.3,1)}
+.crate-rail li:last-child{margin-right:0}
+.crate-rail li:hover,.crate-rail li:focus-within{z-index:2;margin-right:-4px}
+.sleeve{position:relative;display:block;width:86px;padding:0;border:0;cursor:pointer;
+  background:transparent;transform-origin:bottom center;
+  transition:transform .28s cubic-bezier(.16,1,.3,1)}
+/* Each sleeve is overlapped by the one in front of it, so it needs an edge
+   and a shadow thrown backwards — without them the row reads as a strip of
+   cropped images rather than records standing in a crate. */
+.sleeve img{display:block;width:86px;height:86px;object-fit:cover;
+  border:1px solid rgba(0,0,0,.6);border-left-color:rgba(255,255,255,.22);
+  box-shadow:-9px 0 15px -3px rgba(0,0,0,.8),4px 9px 20px rgba(0,0,0,.55)}
+.sleeve-cap{position:absolute;left:0;top:calc(100% + 6px);width:120px;text-align:left;
+  opacity:0;transition:opacity .2s;pointer-events:none}
+.sleeve-cap b{display:block;font:9px var(--mono);letter-spacing:.06em;color:#efebe1;font-weight:400;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sleeve-cap i{display:block;font:8px var(--mono);letter-spacing:.06em;color:#8e9086;font-style:normal;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sleeve:hover,.sleeve:focus-visible{transform:translateY(-14px);outline:none}
+.sleeve:hover .sleeve-cap,.sleeve:focus-visible .sleeve-cap{opacity:1}
+.sleeve:focus-visible img{box-shadow:0 0 0 2px var(--lichen),4px 8px 18px rgba(0,0,0,.6)}
+.sleeve:hover img,.sleeve:focus-visible img{box-shadow:0 0 22px -2px var(--tint,#4c6654),4px 10px 22px rgba(0,0,0,.65)}
+/* the record currently on the deck stays proud of the row */
+.sleeve.on{transform:translateY(-10px)}
+.sleeve.on img{box-shadow:0 0 0 1px var(--lichen),0 0 20px -4px var(--tint,#4c6654),4px 8px 18px rgba(0,0,0,.6)}
+@media (prefers-reduced-motion:reduce){.sleeve{transition:none}}
+
+.deck-now{margin:0;flex:1;min-width:0;font:9px var(--mono);letter-spacing:.08em;color:#b9bbb2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deck-now:empty{display:none}
 .playing .record,.flipped .record{animation:spin 2.4s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.playing .record,.flipped .record{animation:none}}
@@ -354,9 +415,46 @@ a.spine:hover,a.spine:focus-visible{transform:translateY(-8px);background:#55684
 .shot img{display:block;width:100%;border:1px solid var(--dark-line);background:#0f1117}
 
 /* the tree recording */
+/* ——— an app in a window ————————————————————————————————————
+   The DNS monitor is a tabbed application, and its three captures are
+   full dashboard pages. Stacked, they ran for a screen and a half of
+   scrolling. In one window with the app's own tabs they take the height
+   of a single view, and switching is the same gesture as in the app. */
+.app-window{margin:0;background:#0f1117;border:1px solid var(--dark-line);
+  box-shadow:0 22px 50px rgba(0,0,0,.4);min-width:0}
+.app-chrome{display:flex;align-items:center;gap:14px;padding:0 12px;
+  background:#161a22;border-bottom:1px solid var(--dark-line)}
+.app-dots{display:flex;gap:6px;flex:none}
+.app-dots i{width:9px;height:9px;border-radius:50%;background:#2e3440}
+.app-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.app-tabs::-webkit-scrollbar{display:none}
+.app-tabs button{flex:none;background:transparent;border:0;border-bottom:2px solid transparent;cursor:pointer;
+  padding:12px 14px;font:9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#7d8694}
+.app-tabs button:hover{color:#c3cad6}
+.app-tabs button[aria-selected="true"]{color:#efebe1;border-bottom-color:var(--lichen)}
+/* the capture is a whole page, so the window scrolls like one */
+.app-screen{height:clamp(380px,56vh,560px);overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#2e3440 transparent}
+.app-screen::-webkit-scrollbar{width:7px}
+.app-screen::-webkit-scrollbar-thumb{background:#2e3440}
+.app-screen img{display:block;width:100%;height:auto}
+.app-window figcaption{padding:10px 14px;border-top:1px solid var(--dark-line);
+  font:9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#7d8694}
+
 .tree-visual{background:#131410}
-.screen-capture{margin:0}
+.screen-capture{position:relative;margin:0}
 .screen-capture video{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--dark-line)}
+/* It autoplays muted — every browser insists — so the way to the sound has
+   to be visible rather than hidden in the native control strip. */
+.sound-toggle{position:absolute;right:12px;top:12px;display:inline-flex;align-items:center;gap:7px;
+  padding:7px 11px;cursor:pointer;color:#efebe1;background:rgba(10,11,9,.76);
+  border:1px solid rgba(239,235,225,.3);backdrop-filter:blur(4px);
+  font:9px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.sound-toggle:hover{background:rgba(10,11,9,.9);border-color:rgba(239,235,225,.6)}
+.sound-toggle[aria-pressed="true"]{border-color:var(--lichen);color:var(--lichen)}
+.sound-toggle i{font-style:normal;line-height:1}
+.screen-capture figcaption kbd{font:9px var(--mono);padding:1px 5px;border:1px solid var(--dark-line);
+  border-radius:3px;background:rgba(255,255,255,.06)}
 
 /* terminal */
 .terminal-wrap{background:#10120f;color:#dde3ce;border:1px solid var(--dark-line)}

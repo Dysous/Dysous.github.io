@@ -64,65 +64,111 @@
 
     "vec2 opU(vec2 a, vec2 b){ return a.x < b.x ? a : b; }",
 
-    /* x = distance, y = material id */
-    "vec2 map(vec3 p){",
+    /* Components repeated round the board. The flex is populated the whole
+       way round in the teardown photos — a field of small silver pads and
+       chips — and one chip on its own reads as a toy, so the pads are
+       instanced by folding space into a wedge instead of being authored
+       one at a time. */
+    "vec3 polarFold(vec3 p, float n){",
+    "  float a = atan(p.z, p.x);",
+    "  float r = length(p.xz);",
+    "  float sector = 6.2831853 / n;",
+    "  a = mod(a + sector * 0.5, sector) - sector * 0.5;",
+    "  return vec3(cos(a) * r, p.y, sin(a) * r);",
+    "}",
+
+    /* The real ring, measured: 7.8 mm wide, 2.75 mm of wall, about 23.6 mm
+       across the outside. The old model was half that width, which is why it
+       read as a washer rather than the chunky thing it is. Everything below
+       is in units of (outer radius = 0.985). */
+    "const float R_OUT   = 0.9850;",   /* outer face of the shell          */
+    "const float R_SHELL = 0.9425;",   /* shell profile centre             */
+    "const float HW      = 0.3250;",   /* half the ring's width            */
+
+    /* x = distance, y = material id.
+       skipLiner lets the second march see what is behind the resin, which is
+       how the board shows through it. */
+    "vec2 mapX(vec3 p, bool skipLiner){",
     "  float t = uExplode;",
     "  vec2 res = vec2(1e9, 0.0);",
 
-    /* --- outer shell: domed outside, chamfered edges, one fine groove --- */
-    "  vec3 ps = p - vec3(0.0, 0.52 * t, 0.0);",
-    "  vec2 qs = revolve(ps) - vec2(0.9425, 0.0);",
-    "  float shell = sdRB2(qs, vec2(0.0425, 0.1550), vec4(0.0400, 0.0400, 0.0090, 0.0090));",
-    /*   a shallow groove turned into the outer face, 0.1 mm of visual interest */
-    "  float groove = length(qs - vec2(0.0455, 0.0)) - 0.0115;",
-    "  shell = max(shell, -groove);",
+    /* --- outer shell: a flat band rolled over hard at both rims --- */
+    "  vec3 ps = p - vec3(0.0, 0.95 * t, 0.0);",
+    "  vec2 qs = revolve(ps) - vec2(R_SHELL, 0.0);",
+    /*   No groove: on the real ring the bright line running round the band
+         is a reflection, not a feature. The face is smooth and rolled hard
+         over at each rim, and the material does the rest. */
+    "  float shell = sdRB2(qs, vec2(0.0425, HW), vec4(0.0420, 0.0420, 0.0080, 0.0080));",
     "  res = opU(res, vec2(shell, 1.0));",
 
     /* --- curved battery: a partial arc, so you can see it is not a full ring --- */
-    "  vec3 pb = p - vec3(0.0, -0.12 * t, 0.0);",
-    "  vec2 qb = revolve(pb) - vec2(0.8700, 0.0);",
-    "  float batt = sdRB2(qb, vec2(0.0230, 0.1000), vec4(0.0110, 0.0110, 0.0110, 0.0110));",
+    "  vec3 pb = p - vec3(0.0, 0.05 * t, 0.0);",
+    "  vec2 qb = revolve(pb) - vec2(0.8720, 0.0);",
+    "  float batt = sdRB2(qb, vec2(0.0210, 0.2100), vec4(0.0100));",
     "  batt = max(batt, 0.02 - pb.x);",
     "  res = opU(res, vec2(batt, 2.0));",
 
-    /* --- flex PCB: thin, green, wraps most of the way round --- */
-    "  vec3 pf = p - vec3(0.0, -0.58 * t, 0.0);",
-    "  vec2 qf = revolve(pf) - vec2(0.8320, 0.0);",
-    "  float pcb = sdRB2(qf, vec2(0.0100, 0.0550), vec4(0.0040, 0.0040, 0.0040, 0.0040));",
+    /* --- flex PCB: thin, wraps most of the way round --- */
+    "  vec3 pf = p - vec3(0.0, -0.62 * t, 0.0);",
+    "  vec2 qf = revolve(pf) - vec2(0.8300, 0.0);",
+    "  float pcb = sdRB2(qf, vec2(0.0075, 0.2050), vec4(0.0030));",
     "  res = opU(res, vec2(pcb, 3.0));",
 
-    /* --- the PPG sensor module, the one part that is not revolved --- */
-    "  vec3 pm = pf - vec3(-0.8280, 0.0, 0.0);",
+    /* --- the population on it: two staggered rings of pads, one of chips --- */
+    "  vec3 pr = polarFold(pf, 34.0);",
+    "  float padA = sdRoundBox(pr - vec3(0.8210, 0.0960, 0.0), vec3(0.0090, 0.0380, 0.0120), 0.0030);",
+    "  float padB = sdRoundBox(pr - vec3(0.8210, -0.0960, 0.0), vec3(0.0090, 0.0380, 0.0120), 0.0030);",
+    "  res = opU(res, vec2(min(padA, padB), 10.0));",
+    "  vec3 pc2 = polarFold(pf, 11.0);",
+    "  float chip = sdRoundBox(pc2 - vec3(0.8140, 0.0, 0.0), vec3(0.0130, 0.0320, 0.0330), 0.0040);",
+    "  res = opU(res, vec2(chip, 11.0));",
+
+    /* --- the PPG sensor module, the one part that is not revolved ---
+           pm.x runs outward from the board, so the optics stack has to be at
+           *positive* pm.x to end up on the finger side of it. Negative put
+           the whole module between the board and the shell, where the board
+           itself hid every part of it. */
+    "  vec3 pm = pf - vec3(-0.8260, 0.0, 0.0);",
     /*   housing: a lozenge sitting against the inside of the flex board */
-    "  float hous = sdRoundBox(pm - vec3(-0.0330, 0.0, 0.0), vec3(0.0290, 0.0880, 0.1520), 0.0200);",
+    "  float hous = sdRoundBox(pm - vec3(0.0280, 0.0, 0.0), vec3(0.0260, 0.1500, 0.1900), 0.0160);",
     "  res = opU(res, vec2(hous, 4.0));",
-    /*   the glossy window over the optics */
-    "  float win = sdEllipsoid(pm - vec3(-0.0620, 0.0, 0.0), vec3(0.0300, 0.0680, 0.1280));",
+    /*   The glossy window sits as a bezel around the optics rather than over
+         them. On the real part the emitters are under the glass; drawn that
+         way at this size they vanish behind it, and the optics are the whole
+         reason for the viewer. The note under the canvas says this is a model
+         of the layout, not a scan. */
+    "  float win = sdRoundBox(pm - vec3(0.0500, 0.0, 0.0), vec3(0.0090, 0.1180, 0.1560), 0.0150);",
     "  res = opU(res, vec2(win, 7.0));",
-    /*   two green LEDs and, between them, the photodiode */
-    "  float led = min(sdEllipsoid(pm - vec3(-0.0760, 0.0,  0.0680), vec3(0.0170, 0.0310, 0.0310)),",
-    "                  sdEllipsoid(pm - vec3(-0.0760, 0.0, -0.0680), vec3(0.0170, 0.0310, 0.0310)));",
+    /*   In the product photography these are not two matching domes: small
+         bright green emitters in pale packages either side of a larger
+         photodiode with a gold active area in a dark frame. */
+    "  float led = min(sdRoundBox(pm - vec3(0.0640, 0.0,  0.1000), vec3(0.0130, 0.0360, 0.0360), 0.0060),",
+    "                  sdRoundBox(pm - vec3(0.0640, 0.0, -0.1000), vec3(0.0130, 0.0360, 0.0360), 0.0060));",
     "  res = opU(res, vec2(led, 5.0));",
-    "  float diode = sdEllipsoid(pm - vec3(-0.0760, 0.0, 0.0), vec3(0.0160, 0.0270, 0.0270));",
+    "  float diode = sdRoundBox(pm - vec3(0.0640, 0.0, 0.0), vec3(0.0130, 0.0540, 0.0580), 0.0045);",
     "  res = opU(res, vec2(diode, 8.0));",
 
     /* --- inner resin liner, with a window over the optics --- */
-    "  vec3 pl = p - vec3(0.0, -1.05 * t, 0.0);",
-    "  vec2 ql = revolve(pl) - vec2(0.7865, 0.0);",
-    "  float liner = sdRB2(ql, vec2(0.0315, 0.1450), vec4(0.0090, 0.0090, 0.0260, 0.0260));",
-    /*   the sensor shines through the liner rather than hiding behind it, so
-         the module is still visible with the ring assembled */
-    "  float lwin = sdEllipsoid(pl - vec3(-0.7900, 0.0, 0.0), vec3(0.0700, 0.0780, 0.1420));",
-    "  liner = max(liner, -lwin);",
-    "  res = opU(res, vec2(liner, 6.0));",
+    "  if (!skipLiner) {",
+    "    vec3 pl = p - vec3(0.0, -1.45 * t, 0.0);",
+    "    vec2 ql = revolve(pl) - vec2(0.7840, 0.0);",
+    "    float liner = sdRB2(ql, vec2(0.0290, 0.3050), vec4(0.0080, 0.0080, 0.0240, 0.0240));",
+    /*     the sensor sits in a cut-out rather than behind the resin */
+    "    float lwin = sdRoundBox(pl - vec3(-0.7900, 0.0, 0.0), vec3(0.0700, 0.1300, 0.1700), 0.0250);",
+    "    liner = max(liner, -lwin);",
+    "    res = opU(res, vec2(liner, 6.0));",
+    "  }",
 
     /* --- two gold charging pads, proud of the inner face --- */
-    "  float pad = min(sdRoundBox(pl - vec3(0.0, 0.0,  0.7560), vec3(0.0620, 0.0360, 0.0150), 0.0080),",
-    "                  sdRoundBox(pl - vec3(0.0, 0.0, -0.7560), vec3(0.0620, 0.0360, 0.0150), 0.0080));",
+    "  vec3 pg = p - vec3(0.0, -1.45 * t, 0.0);",
+    "  float pad = min(sdRoundBox(pg - vec3(0.0, 0.0,  0.7560), vec3(0.0700, 0.0420, 0.0150), 0.0080),",
+    "                  sdRoundBox(pg - vec3(0.0, 0.0, -0.7560), vec3(0.0700, 0.0420, 0.0150), 0.0080));",
     "  res = opU(res, vec2(pad, 9.0));",
 
     "  return res;",
     "}",
+
+    "vec2 map(vec3 p){ return mapX(p, false); }",
 
     /* four-tap tetrahedron normal — half the map() calls of the six-tap */
     "vec3 calcNormal(vec3 p){",
@@ -135,7 +181,12 @@
 
     /* the whole assembly lives inside this sphere; rays that miss it never march */
     "bool boundsHit(vec3 ro, vec3 rd, out float t0, out float t1){",
-    "  float spread = 0.80 * uExplode + 0.17;",
+    /*   0.34 is the ring's half-width; at full width the corner of the band
+         sits further out than the old 0.17 sphere reached, and rays that
+         should have hit it were being thrown away. The component offsets
+         above are likewise scaled for the doubled width (shell 0.95, flex
+         -0.62, liner/pads -1.45) so the exploded layers fully separate. */
+    "  float spread = 1.28 * uExplode + 0.34;",
     "  vec3  c = vec3(0.0, -0.28 * uExplode, 0.0);",
     "  float r = sqrt(1.0 + spread * spread) + 0.04;",
     "  vec3  oc = ro - c;",
@@ -148,19 +199,59 @@
     "  return t1 > 0.0;",
     "}",
 
+    /* Colours read off the teardown photograph rather than guessed: the
+       emitter is a hard green in a pale package, the photodiode is a gold
+       plate in a dark frame, the pads are bare tinned silver, and the shell
+       is piano black — almost no diffuse at all, nearly all reflection. */
     "void matProps(float id, out vec3 albedo, out float spec, out float rough,",
     "               out float metal, out vec3 emit){",
     "  emit = vec3(0.0); metal = 0.0;",
-    "  if (id < 1.5)      { albedo = vec3(0.048, 0.051, 0.048); spec = 1.00; rough = 0.13; metal = 0.85; }",  /* anodised shell */
-    "  else if (id < 2.5) { albedo = vec3(0.455, 0.270, 0.140); spec = 0.70; rough = 0.34; metal = 0.60; }",  /* battery foil */
-    "  else if (id < 3.5) { albedo = vec3(0.075, 0.185, 0.120); spec = 0.40; rough = 0.50; }",                /* solder mask */
-    "  else if (id < 4.5) { albedo = vec3(0.062, 0.066, 0.060); spec = 0.35; rough = 0.58; }",                /* sensor housing */
-    "  else if (id < 5.5) { albedo = vec3(0.250, 0.420, 0.210); spec = 0.75; rough = 0.14;",                  /* PPG LEDs */
-    "                       emit = vec3(0.360, 1.080, 0.420); }",
-    "  else if (id < 6.5) { albedo = vec3(0.082, 0.085, 0.079); spec = 0.26; rough = 0.62; }",                /* resin liner */
-    "  else if (id < 7.5) { albedo = vec3(0.020, 0.024, 0.022); spec = 1.00; rough = 0.05; }",                /* sensor window */
-    "  else if (id < 8.5) { albedo = vec3(0.012, 0.013, 0.016); spec = 0.90; rough = 0.09; }",                /* photodiode */
-    "  else               { albedo = vec3(0.620, 0.470, 0.185); spec = 1.00; rough = 0.18; metal = 0.95; }",  /* gold pads */
+    /*   Piano black is not a metal. Modelled as one, its Fresnel term picks
+         up the near-black albedo, the reflection goes to nothing and the
+         shell comes out looking like matte rubber — which is exactly what it
+         did. It is a dielectric over a black base: 5% white reflection
+         head-on, total at a grazing angle, and no diffuse worth the name. */
+    "  if (id < 1.5)      { albedo = vec3(0.008, 0.009, 0.008); spec = 1.00; rough = 0.040; metal = 0.0; }",  /* polished shell */
+    "  else if (id < 2.5) { albedo = vec3(0.455, 0.270, 0.140); spec = 0.70; rough = 0.34;  metal = 0.60; }", /* battery foil */
+    "  else if (id < 3.5) { albedo = vec3(0.055, 0.050, 0.046); spec = 0.35; rough = 0.55; }",                /* flex substrate */
+    "  else if (id < 4.5) { albedo = vec3(0.052, 0.055, 0.050); spec = 0.30; rough = 0.60; }",                /* sensor housing */
+    "  else if (id < 5.5) { albedo = vec3(0.090, 0.480, 0.070); spec = 0.85; rough = 0.10;",                  /* green emitter */
+    "                       emit = vec3(0.045, 1.700, 0.110); }",
+    "  else if (id < 6.5) { albedo = vec3(0.012, 0.013, 0.012); spec = 0.95; rough = 0.06; }",                /* resin liner */
+    "  else if (id < 7.5) { albedo = vec3(0.016, 0.019, 0.018); spec = 1.00; rough = 0.04; }",                /* optics window */
+    "  else if (id < 8.5) { albedo = vec3(0.880, 0.660, 0.215); spec = 1.00; rough = 0.24; metal = 0.95; }",  /* gold photodiode */
+    "  else if (id < 9.5) { albedo = vec3(0.680, 0.520, 0.200); spec = 1.00; rough = 0.17; metal = 0.95; }",  /* gold charge pads */
+    "  else if (id < 10.5){ albedo = vec3(0.620, 0.640, 0.650); spec = 1.00; rough = 0.22; metal = 0.90; }",  /* tinned pads */
+    "  else               { albedo = vec3(0.105, 0.108, 0.112); spec = 0.55; rough = 0.38; metal = 0.25; }",  /* chip bodies */
+    "}",
+
+    /* A studio, not a grey gradient. Polished black is almost entirely the
+       things around it, so what the shell reflects *is* the material: a dark
+       floor, a bright horizon, a big soft overhead box, and one hard strip
+       light. Take the strip light out and it goes straight back to looking
+       like rubber. */
+    "vec3 envmap(vec3 r){",
+    "  vec3 c = mix(vec3(0.0040, 0.0044, 0.0038), vec3(0.0300, 0.0325, 0.0285),",
+    "               smoothstep(-0.60, 0.05, r.y));",
+    "  c = mix(c, vec3(0.1050, 0.1120, 0.1000), smoothstep(0.05, 0.75, r.y));",
+    /*   The strip lights are bands in elevation only, so they wrap the whole
+         way round in azimuth. On a cylindrical band that paints one
+         continuous bright line all the way round the ring, which is the
+         thing the eye reads as "polished". A point light cannot do it. */
+    "  c += vec3(5.600, 5.700, 5.350) * smoothstep(0.075, 0.0, abs(r.y - 0.215));",
+    "  c += vec3(1.250, 1.300, 1.180) * smoothstep(0.065, 0.0, abs(r.y + 0.300));",
+    /*   overhead softbox */
+    "  c += vec3(4.200, 4.300, 3.980) * smoothstep(0.58, 0.96, r.y) * smoothstep(0.85, 0.10, abs(r.x));",
+    /*   a big white card off to one side, so the band is not evenly lit */
+    /*   Two big cards either side. The flat part of the band is a cylinder,
+         so its reflection barely moves in elevation as you look across it —
+         all the modelling has to come from things placed around it in
+         azimuth, or the band comes out a uniform black slab. */
+    "  c += vec3(3.100, 3.180, 2.950) * smoothstep(0.05, 0.85, r.x) * smoothstep(-0.70, 0.10, r.y);",
+    "  c += vec3(0.850, 0.880, 0.800) * smoothstep(-0.10, -0.80, r.x) * smoothstep(-0.70, 0.20, r.y);",
+    /*   and a dim wrap so the shadow side is not pure void */
+    "  c += vec3(0.090, 0.095, 0.086);",
+    "  return c;",
     "}",
 
     /* three-tap ambient occlusion instead of a shadow march */
@@ -172,15 +263,52 @@
     "  return clamp(1.0 - occ * 2.1, 0.25, 1.0);",
     "}",
 
+    /* one shading evaluation, so the liner pass can reuse it */
+    "vec3 shade(vec3 p, vec3 n, vec3 v, float id, float ao){",
+    "  vec3 albedo; float spec; float rough; float metal; vec3 emit;",
+    "  matProps(id, albedo, spec, rough, metal, emit);",
+
+    "  vec3 key  = normalize(vec3(0.55, 0.95, 0.60));",
+    "  vec3 fill = normalize(vec3(-0.70, 0.25, 0.35));",
+
+    "  float dif  = max(dot(n, key), 0.0) * ao;",
+    "  float dif2 = max(dot(n, fill), 0.0) * 0.30;",
+    "  float amb  = (0.16 + 0.20 * (0.5 + 0.5 * n.y)) * ao;",
+
+    "  vec3 f0 = mix(vec3(0.045), albedo, metal);",
+    "  float fres = pow(1.0 - max(dot(n, v), 0.0), 5.0);",
+    "  vec3 F = f0 + (vec3(1.0) - f0) * fres;",
+
+    /* Reflection is the whole story on the polished parts. Roughness is
+       faked by sliding the lookup from the mirror direction toward the
+       normal — a blurred reflection without a mip chain to blur. */
+    "  vec3 r = reflect(-v, n);",
+    "  vec3 rr = normalize(mix(r, n, rough * rough * 2.2));",
+    "  vec3 env = mix(envmap(rr), envmap(n), rough * 0.55);",
+
+    "  float shin = mix(420.0, 9.0, rough);",
+    "  vec3 hv  = normalize(key + v);",
+    "  vec3 hv2 = normalize(fill + v);",
+    "  vec3 sp = F * spec * ao * (pow(max(dot(n, hv), 0.0), shin) * 1.30 +",
+    "                             pow(max(dot(n, hv2), 0.0), shin) * 0.40);",
+
+    "  float rim = pow(1.0 - max(dot(n, v), 0.0), 3.4) * 0.40;",
+    "  vec3 diffuse = albedo * (1.0 - metal) * (dif * 1.00 + dif2 + amb);",
+    "  return diffuse + sp + env * F * mix(0.70, 1.55, metal) * ao",
+    "       + albedo * rim * 1.6 + emit * 0.85;",
+    "}",
+
     "void main(){",
     "  vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;",
 
-    "  vec3 bg = mix(vec3(0.0105, 0.0120, 0.0098), vec3(0.0024, 0.0028, 0.0022),",
-    "                clamp(length(uv) * 1.15, 0.0, 1.0));",
+    /* a pool of light behind it — a polished black object needs something
+       to be black against, or the silhouette disappears into the panel */
+    "  vec3 bg = mix(vec3(0.0520, 0.0560, 0.0480), vec3(0.0050, 0.0056, 0.0046),",
+    "                clamp(length(uv - vec2(0.0, 0.04)) * 1.05, 0.0, 1.0));",
 
     /* dolly out and re-centre as the stack opens, so it always fits the frame */
-    "  vec3  target = vec3(0.0, -0.28 * uExplode, 0.0);",
-    "  float dist   = 3.95 + 1.55 * uExplode;",
+    "  vec3  target = vec3(0.0, -0.26 * uExplode, 0.0);",
+    "  float dist   = 4.25 + 2.55 * uExplode;",
 
     "  mat3 rot = rotY(uYaw) * rotX(uPitch);",
     "  vec3 ro = target + rot * vec3(0.0, 0.0, dist);",
@@ -193,7 +321,7 @@
     "  float id = 0.0;",
     "  bool hit = false;",
     "  if (inBounds){",
-    "    for (int i = 0; i < 56; i++){",
+    "    for (int i = 0; i < 58; i++){",
     "      vec3 p = ro + rd * t;",
     "      vec2 h = map(p);",
     "      if (h.x < 0.0011){ id = h.y; hit = true; break; }",
@@ -207,47 +335,43 @@
     "    vec3 p = ro + rd * t;",
     "    vec3 n = calcNormal(p);",
     "    vec3 v = -rd;",
-
-    "    vec3 albedo; float spec; float rough; float metal; vec3 emit;",
-    "    matProps(id, albedo, spec, rough, metal, emit);",
-
-    "    vec3 key  = normalize(vec3(0.55, 0.95, 0.60));",
-    "    vec3 fill = normalize(vec3(-0.70, 0.25, 0.35));",
-    "    vec3 rimL = normalize(vec3(0.10, -0.35, -0.90));",
-
     "    float ao = occlusion(p, n);",
-    "    float dif  = max(dot(n, key), 0.0) * ao;",
-    "    float dif2 = max(dot(n, fill), 0.0) * 0.30;",
-    "    float amb  = (0.18 + 0.22 * (0.5 + 0.5 * n.y)) * ao;",
-    "    float rim  = pow(1.0 - max(dot(n, v), 0.0), 3.2) * 0.45;",
+    "    col = shade(p, n, v, id, ao);",
 
-    /* metals tint their own highlight and have no diffuse of their own, which
-       is the difference between the shell reading as anodised and as plastic */
-    "    vec3 f0 = mix(vec3(0.045), albedo, metal);",
-    "    float fres = pow(1.0 - max(dot(n, v), 0.0), 5.0);",
-    "    vec3 F = f0 + (vec3(1.0) - f0) * fres;",
+    /* The resin liner is clear on the real ring — you read the board through
+       it. One more march past it, with the liner itself excluded, is what
+       puts the components back behind the glass instead of hiding them. */
+    "    if (id > 5.5 && id < 6.5){",
+    "      float t2 = t + 0.02;",
+    "      float id2 = 0.0;",
+    "      bool hit2 = false;",
+    "      for (int j = 0; j < 30; j++){",
+    "        vec3 q = ro + rd * t2;",
+    "        vec2 h2 = mapX(q, true);",
+    "        if (h2.x < 0.0016){ id2 = h2.y; hit2 = true; break; }",
+    "        t2 += h2.x;",
+    "        if (t2 > tFar) break;",
+    "      }",
+    "      vec3 behind = bg;",
+    "      if (hit2){",
+    "        vec3 p2 = ro + rd * t2;",
+    "        vec3 n2 = calcNormal(p2);",
+    "        behind = shade(p2, n2, v, id2, occlusion(p2, n2));",
+    "      }",
+    /*     Fresnel decides it: face-on the resin is nearly invisible, at a
+           grazing angle it goes to a hard reflection like real glass. */
+    "      float f = 0.06 + 0.94 * pow(1.0 - max(dot(n, v), 0.0), 4.0);",
+    "      col = mix(behind * vec3(0.86, 0.88, 0.86), col, clamp(f + 0.16, 0.0, 1.0));",
+    "    }",
 
-    "    float shin = mix(180.0, 9.0, rough);",
-    "    vec3 hv  = normalize(key + v);",
-    "    vec3 hv2 = normalize(fill + v);",
-    "    vec3 hv3 = normalize(rimL + v);",
-    "    vec3 sp = F * spec * ao * (",
-    "        pow(max(dot(n, hv),  0.0), shin) * 1.00 +",
-    "        pow(max(dot(n, hv2), 0.0), shin) * 0.35 +",
-    "        pow(max(dot(n, hv3), 0.0), shin) * 0.55);",
-
-    /* a crude vertical gradient standing in for an environment, so curved
-       metal picks up a moving highlight as it turns */
-    "    vec3 r = reflect(-v, n);",
-    "    vec3 env = mix(vec3(0.020, 0.023, 0.020), vec3(0.150, 0.158, 0.148), clamp(r.y * 0.5 + 0.5, 0.0, 1.0));",
-    "    env += vec3(0.30, 0.33, 0.28) * pow(max(dot(r, key), 0.0), 14.0);",
-
-    "    vec3 diffuse = albedo * (1.0 - metal) * (dif * 1.05 + dif2 + amb);",
-    "    col = diffuse + sp + env * F * mix(0.35, 1.25, metal) * ao",
-    "        + albedo * rim * 2.2 + emit * 0.85;",
-    "    col = mix(col, bg, clamp((t - 2.6) / 5.0, 0.0, 0.55));",
+    "    col = mix(col, bg, clamp((t - 2.9) / 5.2, 0.0, 0.52));",
     "  }",
 
+    /* ACES-ish. The previous curve, x/(x+0.72)*1.38, is a 1.9x *gain* on
+       everything near zero — it lifted the whole shell to a flat mid grey,
+       which is most of why it read as rubber. This one leaves black black
+       and only rolls off the top end. */
+    "  col = (col * (2.51 * col + 0.03)) / (col * (2.43 * col + 0.59) + 0.14);",
     "  col = pow(clamp(col, 0.0, 1.0), vec3(0.4545));",
     "  gl_FragColor = vec4(col, 1.0);",
     "}"
@@ -287,7 +411,7 @@
   var uPitch = gl.getUniformLocation(prog, "uPitch");
   var uExplode = gl.getUniformLocation(prog, "uExplode");
 
-  var yaw = 0.6, pitch = -0.52, explode = 0, explodeTarget = 0;
+  var yaw = 1.25, pitch = -0.34, explode = 0, explodeTarget = 0;
 
   /* on touch devices this is a battery drain to leave spinning forever, so it
      renders one frame and waits to be touched */

@@ -70,19 +70,20 @@
                 <span class="spine s4" aria-hidden="true"></span>
                 <span class="spine s5" aria-hidden="true"></span>
                 <span class="spine s6" aria-hidden="true"></span>
-                <!-- Sleeves file themselves in as tracks actually play: the cover of
-                     each played track is pulled from Spotify's oEmbed and propped at
-                     the front of the shelf. Nothing here is a mock-up of an album. -->
-                <ol class="sleeves" id="sleeves" aria-label="Records played so far"></ol>
               </div>
               <div class="shelf-board" aria-hidden="true"></div>
             </div>
 
             <div class="deck">
               <div class="platter" id="platter">
+                <!-- A picture disc, not a black record with a sticker in the
+                     middle: the cover is pressed across the whole face and the
+                     grooves and the sheen sit on top of it. -->
                 <div class="record" id="record">
+                  <img class="record-face" id="record-face" alt="" width="640" height="640" hidden>
+                  <span class="record-grooves" aria-hidden="true"></span>
+                  <span class="record-sheen" aria-hidden="true"></span>
                   <span class="record-label" id="record-label">
-                    <img class="record-art" id="record-art" alt="" width="300" height="300" hidden>
                     <span class="record-side" id="record-side">Side A</span>
                   </span>
                 </div>
@@ -96,16 +97,28 @@
               <span class="play-icon" aria-hidden="true">▶</span>
               <span class="sound-label">Play</span>
             </button>
+            <p class="deck-now" id="deck-now" aria-live="polite"></p>
             <a class="scrobble" href="https://www.last.fm/user/Dysous" target="_blank" rel="noopener">Last.fm ↗</a>
           </div>
+
+          <!-- The crate. Filled from the playlist at build time (see
+               tools/fetch-playlist.py) so there is something to flip through
+               before a single note has played — the old shelf only filled in
+               after a track finished, which meant it was empty exactly when
+               someone was deciding whether to press play. -->
+          <section class="crate" id="crate" aria-labelledby="crate-head">
+            <h3 class="crate-head" id="crate-head">On the shelf</h3>
+            <ol class="crate-rail" id="crate-rail"></ol>
+          </section>
 
           <!-- the Spotify player mounts here once a playlist is set in main.js -->
           <div class="deck-player" id="deck-player" hidden></div>
 
           <!-- Spotify's own limitation, worth saying out loud so a visitor who
                gets 30 seconds a track doesn't think the deck is broken. -->
-          <p class="deck-fine" id="deck-fine" hidden>Spotify plays 30-second previews unless
-            you're signed in to Spotify in this browser.</p>
+          <p class="deck-fine" id="deck-fine" hidden>Spotify plays 30-second previews unless you're
+            signed in to Spotify in this browser, and gives an embed no volume control of its own —
+            both are its rules. Use your system volume.</p>
 
           <!-- slot: music — swap this whole <p> for <p class="deck-note">your words</p> -->
           <p class="draft deck-draft" data-slot="music">
@@ -161,7 +174,7 @@
             <li><i class="sw sw-gold"></i>Charging contacts</li>
             <li><i class="sw sw-liner"></i>Inner resin liner</li>
           </ul>
-          <p class="note">A model of the part layout, not a scan of the hardware</p>
+          <p class="note">A model of the part layout, built from Colmi’s own teardown photography — not a scan of the hardware</p>
         </div>
         <figure class="ring-stage" id="ring-stage">
           <canvas width="760" height="620" aria-label="Interactive three-dimensional view of the Colmi R02 ring. Drag to rotate it; use the separation slider to pull its parts apart."></canvas>
@@ -195,10 +208,33 @@
           <a class="link" href="https://github.com/Dysous/Rust-DNS-Resolver" target="_blank" rel="noopener">Source ↗</a>
         </div>
 
-        <div class="work-visual stack-visual">
-          <figure class="shot"><img src="assets/img/portfolio/dns-dashboard.webp" alt="DNS monitor dashboard: 346 total queries, 22 cache hits, 60 ms average latency, 40 blocked queries, 304 DNSSEC validations, and lists of top queried and top blocked domains" width="836" height="1462" loading="lazy"><figcaption>Ordinary traffic</figcaption></figure>
-          <figure class="shot"><img src="assets/img/portfolio/dns-threats.webp" alt="Threat page: average threat score 98.4, a tunneling watchlist entry for evil.test with 432 unique subdomains and 4.85 average entropy, plus flagged queries scoring 160" width="836" height="1120" loading="lazy"><figcaption>Under a simulated tunneling run</figcaption></figure>
-          <figure class="shot"><img src="assets/img/portfolio/dns-logs.webp" alt="Live DNS request stream showing timestamps, source IPs, domains, protocol, latency, and status" width="836" height="590" loading="lazy"><figcaption>Query stream</figcaption></figure>
+        <!-- Three full-height dashboard captures stacked made this section run
+             for most of a screen and a half of scrolling. The monitor is a
+             tabbed app, so the captures sit in one window and you switch
+             between them the way you would in the real thing. -->
+        <div class="work-visual">
+          <figure class="app-window" id="dns-window">
+            <div class="app-chrome">
+              <span class="app-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <div class="app-tabs" role="tablist" aria-label="DNS monitor views">
+                <button role="tab" id="dns-tab-1" aria-controls="dns-panel-1" aria-selected="true">Dashboard</button>
+                <button role="tab" id="dns-tab-2" aria-controls="dns-panel-2" aria-selected="false">Threats</button>
+                <button role="tab" id="dns-tab-3" aria-controls="dns-panel-3" aria-selected="false">Logs</button>
+              </div>
+            </div>
+            <div class="app-screen">
+              <div role="tabpanel" id="dns-panel-1" aria-labelledby="dns-tab-1">
+                <img src="assets/img/portfolio/dns-dashboard.webp" alt="DNS monitor dashboard: 346 total queries, 22 cache hits, 60 ms average latency, 40 blocked queries, 304 DNSSEC validations, and lists of top queried and top blocked domains" width="836" height="1399" loading="lazy">
+              </div>
+              <div role="tabpanel" id="dns-panel-2" aria-labelledby="dns-tab-2" hidden>
+                <img src="assets/img/portfolio/dns-threats.webp" alt="Threat page: average threat score 98.4, a tunneling watchlist entry for evil.test with 432 unique subdomains and 4.85 average entropy, plus flagged queries scoring 160" width="836" height="1057" loading="lazy">
+              </div>
+              <div role="tabpanel" id="dns-panel-3" aria-labelledby="dns-tab-3" hidden>
+                <img src="assets/img/portfolio/dns-logs.webp" alt="Live DNS request stream showing timestamps, source IPs, domains, protocol, latency, and status" width="836" height="590" loading="lazy">
+              </div>
+            </div>
+            <figcaption id="dns-cap">Ordinary traffic · the window scrolls, the tabs are the app’s own</figcaption>
+          </figure>
         </div>
       </article>
 
@@ -216,26 +252,36 @@
             <span class="draft-tag">your words</span>
             The part of this you'd want someone to notice — the layout reflow, the rotations, the sound design, whatever it was.
           </p>
-          <p class="note">A 45-second run of the compiled project, with its own audio. Scrub it.</p>
+          <p class="note">A 45-second run of the compiled project, with its own audio. It starts
+            muted because browsers insist; the sound is the project's own.</p>
           <a class="link" href="https://github.com/Dysous/DataStructuresFinalProject" target="_blank" rel="noopener">Source ↗</a>
         </div>
         <div class="work-visual tree-visual">
           <figure class="screen-capture">
+            <!-- Autoplays, muted and looping, once it scrolls into view — every
+                 browser blocks autoplay with sound, so the only honest version
+                 of "it starts on its own" is muted with an obvious way to turn
+                 the sound on. main.js drives play/pause from an observer. -->
             <video id="tree-video" width="1280" height="720"
                    poster="assets/img/portfolio/redblack-tree-poster.webp"
-                   controls preload="metadata" playsinline
-                   aria-label="Screen recording of the red-black tree visualizer: nine ascending inserts with recolorings and rotations, then two deletions with fix-ups">
+                   controls muted loop autoplay preload="metadata" playsinline
+                   aria-label="Screen recording of the red-black tree visualizer: five ascending inserts, the Santa Miku sprite toggled on with M, four more inserts, then two deletions with fix-ups">
               <source src="assets/video/redblack-tree.mp4" type="video/mp4">
             </video>
-            <figcaption>Nine ascending inserts, each rebalance, then two deletions · sound on</figcaption>
+            <button class="sound-toggle" id="tree-sound" type="button" aria-pressed="false">
+              <i aria-hidden="true">🔇</i><span>Sound off</span>
+            </button>
+            <figcaption>Nine ascending inserts, each rebalance, then two deletions — and the
+              Santa Miku the project hides behind <kbd>M</kbd></figcaption>
           </figure>
         </div>
       </article>
 
       <!-- 04 ——— Book Nook ——————————————————————————————————————
            Noah's Software 2 group project. He owns the map and the
-           Goodreads import; the media for all three panels is still to
-           come, so each one is a marked slot rather than a stand-in. -->
+           Goodreads import. The map and the app are captures of the real
+           thing, built and run locally; the import is still a marked slot
+           because Goodreads put shelf pages behind a sign-in. -->
       <article class="work reverse" id="book-nook" data-rail="Book Nook">
         <div class="work-copy">
           <p class="num" aria-hidden="true">04</p>
@@ -243,9 +289,10 @@
           <p class="meta">Mapbox · OpenStreetMap · scraping · group project</p>
           <p class="spec">A book club app built with a team for Software Engineering 2. My two
             pieces were the map and the Goodreads import.</p>
-          <p class="spec">The map plots the bookshops, libraries, and stores around you. The markers
-            aren't hand-entered — they're queried out of OpenStreetMap with Overpass and rendered
-            through Mapbox, so the map fills itself in wherever a member happens to be.</p>
+          <p class="spec">The map plots the bookshops, libraries, and cafés a club could meet in. The
+            markers aren't hand-entered — they're pulled out of OpenStreetMap with Overpass, published
+            as Mapbox tilesets, and drawn under the club's own meeting pins. Waco is mapped shop by
+            shop; libraries and cafés are carried nationally.</p>
           <p class="spec">The importer scrapes an existing Goodreads account, so a member arrives
             with their shelves, ratings, and reading history already in the app instead of starting
             from an empty profile.</p>
@@ -257,29 +304,38 @@
           </p>
         </div>
         <div class="work-visual stack-visual">
-          <!-- media slot 1 of 3 — the map, first on purpose -->
-          <figure class="media-slot media-slot-video" data-media="book-nook-map">
-            <div class="slot-frame" style="aspect-ratio:16/9">
-              <span class="slot-tag">Video · first</span>
-              <span class="slot-what">The map: pan it, markers resolving in from Overpass</span>
-              <span class="slot-how">drop in as assets/video/book-nook-map.mp4</span>
-            </div>
+          <!-- 1 of 3 — the map, first on purpose. Recorded from the project built
+               and run locally: his Spring API, his Next front end, his Mapbox
+               styles, with club meetings seeded onto real Waco shops. -->
+          <figure class="screen-capture">
+            <video id="book-nook-video" width="1280" height="720"
+                   poster="assets/img/portfolio/book-nook-map-poster.webp"
+                   controls muted loop playsinline preload="metadata"
+                   aria-label="Screen recording of the Book Nook map over Waco: bookshop and library markers from OpenStreetMap, club meeting pins, and a meeting popup opening at West Waco Library">
+              <source src="assets/video/book-nook-map.mp4" type="video/mp4">
+            </video>
+            <figcaption>Waco, his tilesets: book and café markers out of OpenStreetMap, club
+              meetings pinned on top, one opened at the West Waco Library</figcaption>
           </figure>
-          <!-- media slot 2 of 3 — the Goodreads import -->
+          <!-- 2 of 3 — still a marked slot. Goodreads put its shelf pages behind
+               a sign-in wall, so the importer can't be filmed working against a
+               live account from here. See the note in the slot. -->
           <figure class="media-slot" data-media="book-nook-import">
             <div class="slot-frame" style="aspect-ratio:16/10">
-              <span class="slot-tag">Capture · second</span>
+              <span class="slot-tag">Blocked · needs you</span>
               <span class="slot-what">A real Goodreads account coming in — shelves populated</span>
-              <span class="slot-how">drop in as assets/img/portfolio/book-nook-import.webp</span>
+              <span class="slot-how">Goodreads now requires a sign-in to read /review/list, so the
+                scraper gets a login page instead of a shelf. Signing in once, or saving the shelf
+                page, is all it needs.</span>
             </div>
           </figure>
-          <!-- media slot 3 of 3 — the app itself -->
-          <figure class="media-slot" data-media="book-nook-ui">
-            <div class="slot-frame" style="aspect-ratio:16/10">
-              <span class="slot-tag">Capture · third</span>
-              <span class="slot-what">The app in ordinary use — a club, a shelf, a discussion</span>
-              <span class="slot-how">drop in as assets/img/portfolio/book-nook-ui.webp</span>
-            </div>
+          <!-- 3 of 3 — the app itself, running locally -->
+          <figure class="shot">
+            <img src="assets/img/portfolio/book-nook-ui.webp" width="1600" height="1000"
+                 loading="lazy" decoding="async"
+                 alt="Book Nook's clubs page, showing five public reading clubs in Waco with their cadence and description">
+            <figcaption>The app in ordinary use — clubs, each with a venue and a meeting
+              cadence</figcaption>
           </figure>
         </div>
       </article>
@@ -357,24 +413,44 @@
         </div>
       </section>
 
-      <!-- 08 ——— smaller work ——————————————————————————————————— -->
-      <section class="grid-block" id="smaller" data-rail="Smaller work" aria-label="Smaller work">
-        <article>
-          <p class="meta">08 · Self-hosted · Helm</p>
-          <h3>Media stack</h3>
-          <p class="spec">A request-to-playback pipeline running at home: intake, automated
-            organisation, and playback across the devices in the house.</p>
-          <p class="spec">Roughly twenty containers, which is twenty things to wire up by hand —
-            so the whole stack is a Helm chart instead. One values file brings the lot up, and
-            that chart is the part worth showing; the containers themselves aren't a picture.</p>
-          <!-- Written from Noah's note, not from the chart. Confirm or correct the
-               Helm paragraph above, then delete this box. -->
-          <p class="draft confirm" data-slot="helm">
-            <span class="draft-tag">check this</span>
-            I wrote the Helm paragraph from your one-line note. Tell me what the chart actually
-            does — k3s or full k8s, what's templated, whether it's public — and I'll make it true.
+      <!-- 08 ——— Helm —————————————————————————————————————————
+           The media stack is the subject; Helm is the only way to see it.
+           Captures are of the instance running on his own box, read-only —
+           nothing in the capture pass touched a container. -->
+      <article class="work" id="helm" data-rail="Helm">
+        <div class="work-copy">
+          <p class="num" aria-hidden="true">08</p>
+          <h2>Helm</h2>
+          <p class="meta">TypeScript · React · self-hosted</p>
+          <p class="spec">A request-to-playback pipeline runs at home — intake, automated
+            organisation, playback around the house — across about sixty containers on one box.
+            Sixty containers don't make a picture, so Helm is the picture: a phone app I built to
+            watch the stack and act on it.</p>
+          <p class="spec">One process holds the Docker socket and nothing else does. It works from a
+            fixed set of operations, and anything that could take a service down has to name its
+            target — the databases and the things everything else depends on are found automatically
+            and need a press-and-hold before they'll go anywhere. Services get added from the phone
+            by picking a connector — Sonarr, Radarr, qBittorrent, the request queue, the Minecraft
+            servers — and it's reached over Tailscale, so none of it is exposed.</p>
+          <!-- slot: helm — swap this whole <p> for <p class="voice">your words</p> -->
+          <p class="draft" data-slot="helm">
+            <span class="draft-tag">your words</span>
+            Why you wanted this on your phone instead of just SSHing in.
           </p>
-        </article>
+        </div>
+        <div class="work-visual">
+          <figure class="shot">
+            <img src="assets/img/portfolio/helm-phones.webp" width="1600" height="1106"
+                 loading="lazy" decoding="async"
+                 alt="Two Helm screens on an iPhone: the home screen listing host load, quick actions and each service's status, and the system screen with a CPU graph, disk usage and the running containers">
+            <figcaption>The running instance — what's up, what's down, and the host underneath
+              it</figcaption>
+          </figure>
+        </div>
+      </article>
+
+      <!-- 09 ——— smaller work ——————————————————————————————————— -->
+      <section class="grid-block" id="smaller" data-rail="Smaller work" aria-label="Smaller work">
         <article>
           <p class="meta">09 · Bash</p>
           <h3>Mini FTP server</h3>
@@ -473,6 +549,9 @@
     <a class="to-top" href="#top">Top ↑</a>
   </footer>
 
+  <!-- the playlist's running order, baked by tools/fetch-playlist.py, so the
+       crate has records in it before anything has played -->
+  <script src="assets/js/playlist.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/ring.js"></script>
 </body>
